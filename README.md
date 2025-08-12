@@ -19,11 +19,20 @@ Once published to npm, you can include the widget directly via jsDelivr:
 
 ```html
 <!-- Include React and React-DOM -->
-<script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+<!-- jsxRuntime compatibility layer -->
+<script>
+window.jsxRuntime = {
+    jsx: React.createElement,
+    jsxs: React.createElement,
+    Fragment: React.Fragment
+};
+</script>
 
 <!-- Include the widget -->
-<script src="https://cdn.jsdelivr.net/npm/conversational-form-widget@1.0.0/dist/index.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/conversational-form-widget@1.0.0/dist/index.umd.js"></script>
 ```
 
 ### Via npm
@@ -41,30 +50,44 @@ npm install conversational-form-widget
 <html>
 <head>
     <title>Conversational Form Demo</title>
-    <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/conversational-form-widget@1.0.0/dist/index.umd.min.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- jsxRuntime compatibility layer -->
+    <script>
+    window.jsxRuntime = {
+        jsx: React.createElement,
+        jsxs: React.createElement,
+        Fragment: React.Fragment
+    };
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/conversational-form-widget@1.0.0/dist/index.umd.js"></script>
 </head>
 <body>
     <div id="conversational-form"></div>
     
     <script>
-        const { ConversationalFormWidget } = window.ConversationalFormWidget;
-        
-        ReactDOM.render(
-            React.createElement(ConversationalFormWidget, {
-                apiEndpoint: 'https://your-api.com/api/chat',
-                onFormSubmit: (data) => {
-                    console.log('Form submitted:', data);
-                    // Handle form submission
-                },
-                onFormError: (error) => {
-                    console.error('Form error:', error);
-                    // Handle errors
-                }
-            }),
-            document.getElementById('conversational-form')
-        );
+        document.addEventListener('DOMContentLoaded', function() {
+            const { ConversationalFormWidget } = window.ConversationalFormWidget;
+            
+            const container = document.getElementById('conversational-form');
+            const root = ReactDOM.createRoot(container);
+            
+            root.render(
+                React.createElement(ConversationalFormWidget, {
+                    apiEndpoint: 'https://your-api.com/api/chat',
+                    onFormSubmit: (data) => {
+                        console.log('Form submitted:', data);
+                        // Handle form submission
+                    },
+                    onFormError: (error) => {
+                        console.error('Form error:', error);
+                        // Handle errors
+                    }
+                })
+            );
+        });
     </script>
 </body>
 </html>

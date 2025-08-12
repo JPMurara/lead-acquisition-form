@@ -5,10 +5,26 @@
   "description": "A conversational lead acquisition form widget",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
+  "unpkg": "dist/index.umd.js",
+  "jsdelivr": "dist/index.umd.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joaopmurara/lead-acquisition-form.git"
+  },
+  "keywords": [
+    "react",
+    "widget",
+    "conversational",
+    "form",
+    "lead-acquisition",
+    "chat"
+  ],
+  "author": "João Murara",
+  "license": "MIT",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
