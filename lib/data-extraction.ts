@@ -71,7 +71,6 @@ export const parseAIResponse = (
     aiResponse.includes("Email");
 
   if (isFinalConfirmation) {
-    console.log("Detected final confirmation template, extracting all data");
     return extractAllData(aiResponse);
   }
 

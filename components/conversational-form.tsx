@@ -81,7 +81,6 @@ export function ConversationalForm() {
       isTyping: false,
     }
   );
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -127,11 +126,6 @@ export function ConversationalForm() {
 
   // Update the useEffect to also handle chatHistory updates
   useEffect(() => {
-    console.log(
-      "useEffect triggered with formData:",
-      conversationState.formData
-    );
-
     // Create a complete form data object including chat history
     const completeFormData = {
       ...conversationState.formData,
@@ -141,23 +135,17 @@ export function ConversationalForm() {
     };
 
     Object.entries(completeFormData).forEach(([field, value]) => {
-      console.log(`Processing field: ${field}, value: ${value}`);
-
       if (value !== undefined && value !== null && value !== "") {
-        console.log(`Setting field: ${field} to value: ${value}`);
         try {
           // Convert loanAmount to string for the form
           const formValue =
             field === "loanAmount" && typeof value === "number"
               ? value.toString()
-              : value;
+              : String(value);
           form.setFieldValue(field as keyof FormData, formValue);
-          console.log(`Successfully set ${field} to ${formValue}`);
         } catch (error) {
           console.error(`Error setting field ${field}:`, error);
         }
-      } else {
-        console.log(`Skipping field ${field} - value is falsy: ${value}`);
       }
     });
   }, [conversationState.formData, conversationState.messages]); // Add messages to dependency
@@ -242,12 +230,6 @@ export function ConversationalForm() {
     }
   };
 
-  const getStepProgress = () => {
-    const steps = ["loan_amount", "loan_type", "personal_details"];
-    const currentIndex = steps.indexOf(conversationState.currentStep);
-    return Math.max(0, currentIndex);
-  };
-
   const isFormComplete =
     conversationState.formData.name &&
     conversationState.formData.email &&
@@ -274,53 +256,6 @@ export function ConversationalForm() {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      {/* Progress Indicator */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Loan Application Progress</CardTitle>
-          <CardDescription>
-            Step {getStepProgress() + 1} of 3:{" "}
-            {conversationState.currentStep === "loan_amount"
-              ? "Loan Amount"
-              : conversationState.currentStep === "loan_type"
-              ? "Loan Type"
-              : conversationState.currentStep === "personal_details"
-              ? "Personal Details"
-              : "Complete"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex space-x-2">
-            {["loan_amount", "loan_type", "personal_details"].map(
-              (step, index) => {
-                const isCompleted =
-                  conversationState.formData[
-                    step === "loan_amount"
-                      ? "loanAmount"
-                      : step === "loan_type"
-                      ? "loanType"
-                      : "name"
-                  ];
-                const isCurrent = conversationState.currentStep === step;
-
-                return (
-                  <div
-                    key={step}
-                    className={`flex-1 h-2 rounded-full ${
-                      isCompleted
-                        ? "bg-green-500"
-                        : isCurrent
-                        ? "bg-blue-500"
-                        : "bg-gray-200"
-                    }`}
-                  />
-                );
-              }
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Chat Interface */}
         <Card className="h-[600px] flex flex-col">
@@ -352,7 +287,7 @@ export function ConversationalForm() {
             </div>
             <ChatInput
               onSendMessage={handleSendMessage}
-              disabled={conversationState.isTyping || isFormComplete}
+              disabled={conversationState.isTyping || !!isFormComplete}
               placeholder={
                 conversationState.currentStep === "loan_amount"
                   ? "Enter loan amount..."
