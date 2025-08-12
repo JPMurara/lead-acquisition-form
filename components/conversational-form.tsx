@@ -20,6 +20,7 @@ import {
   parseAIResponse,
   ExtractedData,
   determineNextStep,
+  shouldShowSubmitButton,
 } from "@/lib/data-extraction";
 
 // Updated Zod schema to include chat history
@@ -242,6 +243,13 @@ export function ConversationalForm() {
     }
   };
 
+  // Add function to handle chat submission
+  const handleChatSubmission = async () => {
+    if (isFormComplete) {
+      await form.handleSubmit();
+    }
+  };
+
   const getStepProgress = () => {
     const steps = ["loan_amount", "loan_type", "personal_details"];
     const currentIndex = steps.indexOf(conversationState.currentStep);
@@ -350,17 +358,41 @@ export function ConversationalForm() {
                 <div ref={messagesEndRef} />
               </MessageList>
             </div>
-            <ChatInput
-              onSendMessage={handleSendMessage}
-              disabled={conversationState.isTyping || isFormComplete}
-              placeholder={
-                conversationState.currentStep === "loan_amount"
-                  ? "Enter loan amount..."
-                  : conversationState.currentStep === "loan_type"
-                  ? "Choose loan type..."
-                  : "Provide your details..."
-              }
-            />
+            {shouldShowSubmitButton(
+              conversationState.messages[conversationState.messages.length - 1]
+                ?.content || "",
+              conversationState.formData,
+              conversationState.currentStep
+            ) ? (
+              <div className="p-4 border-t">
+                <Button
+                  onClick={handleChatSubmission}
+                  disabled={isSubmitting}
+                  className="w-full h-12 text-lg font-semibold"
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+                      Submitting Application...
+                    </div>
+                  ) : (
+                    "Submit Application"
+                  )}
+                </Button>
+              </div>
+            ) : (
+              <ChatInput
+                onSendMessage={handleSendMessage}
+                disabled={conversationState.isTyping || isFormComplete}
+                placeholder={
+                  conversationState.currentStep === "loan_amount"
+                    ? "Enter loan amount..."
+                    : conversationState.currentStep === "loan_type"
+                    ? "Choose loan type..."
+                    : "Provide your details..."
+                }
+              />
+            )}
           </CardContent>
         </Card>
 
