@@ -42,7 +42,7 @@ const conversationalFormSchema = z.object({
     .string()
     .min(1, "Phone number is required")
     .regex(
-      /^[\+]?[1-9][\d\s\-\(\)]{7,15}$/,
+      /^[\+]?[0-9][\d\s\-\(\)]{7,15}$/,
       "Please enter a valid phone number"
     ),
   chatHistory: z.string().optional(), // Hidden field for chat history
@@ -140,7 +140,7 @@ export function ConversationalForm() {
           // Convert loanAmount to string for the form
           const formValue =
             field === "loanAmount" && typeof value === "number"
-              ? value.toString()
+              ? value
               : String(value);
           form.setFieldValue(field as keyof FormData, formValue);
         } catch (error) {
@@ -236,7 +236,8 @@ export function ConversationalForm() {
     conversationState.formData.phone &&
     conversationState.formData.loanAmount &&
     conversationState.formData.loanType;
-
+  console.log("loanAmount", conversationState.formData.loanAmount);
+  console.log("loanAmount", typeof conversationState.formData.loanAmount);
   if (isSubmitted) {
     return (
       <Card className="w-full max-w-4xl mx-auto">
