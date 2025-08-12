@@ -333,7 +333,7 @@ export function ConversationalForm() {
               Chat with our AI assistant to complete your application
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col p-0">
+          <CardContent className="flex-1 flex flex-col p-0 overflow-y-auto">
             <div className="flex-1 overflow-y-auto">
               <MessageList>
                 {conversationState.messages.map((message) => (

@@ -17,6 +17,14 @@ export function ChatInput({
   placeholder,
 }: ChatInputProps) {
   const [message, setMessage] = React.useState("");
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  // Focus the input when it becomes enabled
+  React.useEffect(() => {
+    if (!disabled && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [disabled]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +47,9 @@ export function ChatInput({
       className="flex items-center space-x-2 p-4 border-t"
     >
       <Input
+        ref={inputRef}
         value={message}
+        autoFocus={true}
         onChange={(e) => setMessage(e.target.value)}
         onKeyPress={handleKeyPress}
         placeholder={placeholder || "Type your message..."}
