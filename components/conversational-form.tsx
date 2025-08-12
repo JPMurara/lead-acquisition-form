@@ -195,15 +195,17 @@ export function ConversationalForm() {
         throw new Error(data.error);
       }
 
-      // Extract data from AI response
+      // Extract data from AI response (only on final confirmation)
       const extractedData = parseAIResponse(
         data.response,
         conversationState.currentStep
       );
+
       const updatedFormData = {
         ...conversationState.formData,
         ...extractedData,
       };
+
       const nextStep = determineNextStep(
         conversationState.currentStep,
         updatedFormData

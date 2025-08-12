@@ -96,35 +96,68 @@ export const extractPhone = (text: string): string | null => {
   return null;
 };
 
+export const extractAllData = (text: string): ExtractedData => {
+  const extracted: ExtractedData = {};
+
+  // Extract from the specific AI template format
+  const nameMatch = text.match(/Thank you (\[name\]|[a-zA-Z\s]+)\./i);
+  const loanTypeMatch = text.match(
+    /applying for a (\[loan type\]|[a-zA-Z\s]+) in the amount/
+  );
+  const amountMatch = text.match(/amount of (\[loan amount\]|\$?[0-9,]+)/i);
+  const phoneMatch = text.match(
+    /phone number as (\[phone number\]|[0-9\s\-\(\)\+]+)/i
+  );
+  const emailMatch = text.match(
+    /email as (\[email\]|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i
+  );
+
+  if (nameMatch && nameMatch[1] !== "[name]") {
+    extracted.name = nameMatch[1].trim();
+  }
+
+  if (loanTypeMatch && loanTypeMatch[1] !== "[loan type]") {
+    extracted.loanType = loanTypeMatch[1].trim();
+  }
+
+  if (amountMatch && amountMatch[1] !== "[loan amount]") {
+    const amount = parseFloat(amountMatch[1].replace(/[$,]/g, ""));
+    if (!isNaN(amount)) {
+      extracted.loanAmount = amount;
+    }
+  }
+
+  if (phoneMatch && phoneMatch[1] !== "[phone number]") {
+    extracted.phone = phoneMatch[1].trim();
+  }
+
+  if (emailMatch && emailMatch[1] !== "[email]") {
+    extracted.email = emailMatch[1].trim();
+  }
+
+  return extracted;
+};
+
+// Update parseAIResponse to detect this specific template
 export const parseAIResponse = (
   aiResponse: string,
   currentStep: string
 ): ExtractedData => {
-  const extracted: ExtractedData = {};
+  // Check if this is the final confirmation template
+  const isFinalConfirmation =
+    aiResponse.includes("Thank you") &&
+    aiResponse.includes("applying for a") &&
+    aiResponse.includes("amount of") &&
+    aiResponse.includes("phone number as") &&
+    aiResponse.includes("email as");
 
-  switch (currentStep) {
-    case "loan_amount":
-      const amount = extractAmount(aiResponse);
-      if (amount) extracted.loanAmount = amount;
-      break;
-
-    case "loan_type":
-      const loanType = extractLoanType(aiResponse);
-      if (loanType) extracted.loanType = loanType;
-      break;
-
-    case "personal_details":
-      const name = extractName(aiResponse);
-      const email = extractEmail(aiResponse);
-      const phone = extractPhone(aiResponse);
-
-      if (name) extracted.name = name;
-      if (email) extracted.email = email;
-      if (phone) extracted.phone = phone;
-      break;
+  if (isFinalConfirmation) {
+    console.log("Detected final confirmation template, extracting all data");
+    return extractAllData(aiResponse);
   }
 
-  return extracted;
+  // For all other messages, return empty object
+  return {};
 };
 
 export const determineNextStep = (
