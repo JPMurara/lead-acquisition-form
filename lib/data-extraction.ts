@@ -6,6 +6,7 @@ export interface ExtractedData {
   name?: string;
   email?: string;
   phone?: string;
+  chatHistory?: string; // Add this field
 }
 
 export const extractAmount = (text: string): number | null => {

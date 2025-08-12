@@ -22,7 +22,7 @@ import {
   determineNextStep,
 } from "@/lib/data-extraction";
 
-// Updated Zod schema to include loan fields
+// Updated Zod schema to include chat history
 const conversationalFormSchema = z.object({
   loanAmount: z
     .number()
@@ -41,11 +41,11 @@ const conversationalFormSchema = z.object({
   phone: z
     .string()
     .min(1, "Phone number is required")
-    // review this regex to make sure its aus pattern
     .regex(
       /^[\+]?[1-9][\d\s\-\(\)]{7,15}$/,
       "Please enter a valid phone number"
     ),
+  chatHistory: z.string().optional(), // Hidden field for chat history
 });
 
 type FormData = z.infer<typeof conversationalFormSchema>;
@@ -88,16 +88,27 @@ export function ConversationalForm() {
 
   const form = useForm({
     defaultValues: {
-      loanAmount: undefined,
+      loanAmount: "", // Change from undefined to empty string
       loanType: "",
       name: "",
       email: "",
       phone: "",
+      chatHistory: "",
     },
     onSubmit: async ({ value }) => {
       setIsSubmitting(true);
       try {
-        const validatedData = conversationalFormSchema.parse(value);
+        // Format chat history before submission
+        const formattedChatHistory = conversationState.messages
+          .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+          .join("\n\n");
+
+        const submissionData = {
+          ...value,
+          chatHistory: formattedChatHistory,
+        };
+
+        const validatedData = conversationalFormSchema.parse(submissionData);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         console.log("Form submitted:", validatedData);
         setIsSubmitted(true);
@@ -114,21 +125,34 @@ export function ConversationalForm() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversationState.messages]);
 
-  // Fix the useEffect dependency array and add better logging
+  // Update the useEffect to also handle chatHistory updates
   useEffect(() => {
     console.log(
       "useEffect triggered with formData:",
       conversationState.formData
     );
 
-    Object.entries(conversationState.formData).forEach(([field, value]) => {
+    // Create a complete form data object including chat history
+    const completeFormData = {
+      ...conversationState.formData,
+      chatHistory: conversationState.messages
+        .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+        .join("\n\n"),
+    };
+
+    Object.entries(completeFormData).forEach(([field, value]) => {
       console.log(`Processing field: ${field}, value: ${value}`);
 
       if (value !== undefined && value !== null && value !== "") {
         console.log(`Setting field: ${field} to value: ${value}`);
         try {
-          form.setFieldValue(field as keyof FormData, value);
-          console.log(`Successfully set ${field} to ${value}`);
+          // Convert loanAmount to string for the form
+          const formValue =
+            field === "loanAmount" && typeof value === "number"
+              ? value.toString()
+              : value;
+          form.setFieldValue(field as keyof FormData, formValue);
+          console.log(`Successfully set ${field} to ${formValue}`);
         } catch (error) {
           console.error(`Error setting field ${field}:`, error);
         }
@@ -136,7 +160,7 @@ export function ConversationalForm() {
         console.log(`Skipping field ${field} - value is falsy: ${value}`);
       }
     });
-  }, [conversationState.formData]); // Remove 'form' from dependency array
+  }, [conversationState.formData, conversationState.messages]); // Add messages to dependency
 
   const handleSendMessage = async (userMessage: string) => {
     const userMsg: Message = {
