@@ -41,6 +41,7 @@ const conversationalFormSchema = z.object({
   phone: z
     .string()
     .min(1, "Phone number is required")
+    // review this regex to make sure its aus pattern
     .regex(
       /^[\+]?[1-9][\d\s\-\(\)]{7,15}$/,
       "Please enter a valid phone number"
@@ -116,7 +117,11 @@ export function ConversationalForm() {
   // Sync conversation data to form
   useEffect(() => {
     Object.entries(conversationState.formData).forEach(([field, value]) => {
+      console.log("conversationState.formData", conversationState.formData);
+      console.log("field", field);
+      console.log("value", value);
       if (value !== undefined) {
+        console.log("Setting field:", field, "to value:", value);
         form.setFieldValue(field as keyof FormData, value);
       }
     });

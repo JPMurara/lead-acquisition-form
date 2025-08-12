@@ -35,9 +35,10 @@ export function Message({ role, content, timestamp, isTyping }: MessageProps) {
         )}
         {timestamp && (
           <p className="mt-1 text-xs opacity-70">
-            {timestamp.toLocaleTimeString([], {
+            {timestamp.toLocaleTimeString("en-US", {
               hour: "2-digit",
               minute: "2-digit",
+              hour12: true,
             })}
           </p>
         )}
