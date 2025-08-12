@@ -44,7 +44,12 @@ Is everything correct?"
 
 #CHAT CLOSURE:
 - Only after the user confirms all details are correct, thank them for their time and say goodbye using this template:
-"Thank you [name]. You are interested in applying for a [loan type] in the amount of [loan amount]. I have noted down your phone number as [phone number] and your email as [email]. I'll make sure these details are sent to our loan processing team. They'll be in touch soon to guide you through the next steps."
+"Thank you [name]. Once you are ready please hit the submit button below and I'll make sure these details are sent to our loan processing team. They'll be in touch soon to guide you through the next steps.
+Loan type: [loan type]  
+Loan amount: [loan amount]  
+Name: [name]  
+Phone: [phone number]  
+Email: [email]"
 `;
 
 export async function POST(request: NextRequest) {

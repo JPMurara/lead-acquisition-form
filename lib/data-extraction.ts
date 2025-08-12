@@ -13,16 +13,21 @@ export const extractAllData = (text: string): ExtractedData => {
   const extracted: ExtractedData = {};
 
   // Extract from the specific AI template format
-  const nameMatch = text.match(/Thank you (\[name\]|[a-zA-Z\s]+)\./i);
+  const nameMatch = text.match(/Name: (\[name\]|[a-zA-Z\s]+)\.?$/im);
   const loanTypeMatch = text.match(
-    /applying for a (\[loan type\]|[a-zA-Z\s]+) in the amount/
+    /Loan type:\s*(\[loan type\]|[^\r\n]+?)\.?\s*$/im
   );
-  const amountMatch = text.match(/amount of (\[loan amount\]|\$?[0-9,]+)/i);
+
+  const amountMatch = text.match(
+    /Loan amount:\s*(\[loan amount\]|\$?\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*$/im
+  );
+
   const phoneMatch = text.match(
-    /phone number as (\[phone number\]|[0-9\s\-\(\)\+]+)/i
+    /Phone:\s*(\[phone number\]|[0-9 ()+\-]+)\s*$/im
   );
+
   const emailMatch = text.match(
-    /email as (\[email\]|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i
+    /Email:\s*(\[email\]|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,})\s*$/im
   );
 
   if (nameMatch && nameMatch[1] !== "[name]") {
@@ -58,11 +63,12 @@ export const parseAIResponse = (
 ): ExtractedData => {
   // Check if this is the final confirmation template
   const isFinalConfirmation =
-    aiResponse.includes("Thank you") &&
-    aiResponse.includes("applying for a") &&
-    aiResponse.includes("amount of") &&
-    aiResponse.includes("phone number as") &&
-    aiResponse.includes("email as");
+    aiResponse.includes("Thank") &&
+    aiResponse.includes("submit button") &&
+    aiResponse.includes("Loan type") &&
+    aiResponse.includes("Name") &&
+    aiResponse.includes("Phone") &&
+    aiResponse.includes("Email");
 
   if (isFinalConfirmation) {
     console.log("Detected final confirmation template, extracting all data");
