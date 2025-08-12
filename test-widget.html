@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Conversational Form Widget</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script>
+      // Provide jsxRuntime for the UMD bundle
+      window.jsxRuntime = {
+        jsx: React.createElement,
+        jsxs: React.createElement,
+        Fragment: React.Fragment,
+      };
+    </script>
+  </head>
+  <body>
+    <div id="widget-container"></div>
+
+    <script>
+      // Load the widget from your local dist folder
+      const script = document.createElement("script");
+      script.src = "./dist/index.umd.js";
+      script.onload = function () {
+        const { ConversationalFormWidget } = window.ConversationalFormWidget;
+
+        // Use React 18 createRoot instead of ReactDOM.render
+        const container = document.getElementById("widget-container");
+        const root = ReactDOM.createRoot(container);
+
+        root.render(
+          React.createElement(ConversationalFormWidget, {
+            apiEndpoint: "/api/chat",
+            onFormSubmit: (data) => {
+              console.log("Form submitted:", data);
+              alert("Form submitted! Check console for details.");
+            },
+            onFormError: (error) => {
+              console.error("Form error:", error);
+              alert("Form error occurred! Check console for details.");
+            },
+          })
+        );
+      };
+      script.onerror = function () {
+        console.error("Failed to load widget script");
+      };
+      document.head.appendChild(script);
+    </script>
+  </body>
+</html>

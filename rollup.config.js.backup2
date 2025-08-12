@@ -1,0 +1,51 @@
+import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+import typescript from "@rollup/plugin-typescript";
+import peerDepsExternal from "rollup-plugin-peer-deps-external";
+import replace from "@rollup/plugin-replace";
+
+export default {
+  input: "src/index.ts",
+  output: [
+    {
+      file: "dist/index.js",
+      format: "cjs",
+      sourcemap: true,
+    },
+    {
+      file: "dist/index.esm.js",
+      format: "esm",
+      sourcemap: true,
+    },
+    {
+      file: "dist/index.umd.js",
+      format: "umd",
+      name: "ConversationalFormWidget",
+      sourcemap: true,
+      globals: {
+        react: "React",
+        "react-dom": "ReactDOM",
+        "react/jsx-runtime": "jsxRuntime"
+      },
+    },
+  ],
+  plugins: [
+    peerDepsExternal(),
+    replace({
+      preventAssignment: true,
+      values: {
+        'process.env.NODE_ENV': '"production"',
+        'process.env': '{}'
+      }
+    }),
+    resolve(),
+    commonjs(),
+    typescript({
+      tsconfig: "./tsconfig.build.json",
+      jsx: "react-jsx",
+      declaration: true,
+      declarationDir: "./dist",
+    }),
+  ],
+  external: ["react", "react-dom"],
+};

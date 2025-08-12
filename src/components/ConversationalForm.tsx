@@ -1,27 +1,25 @@
-"use client";
-
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Message, MessageList } from "@/components/ui/message";
-import { ChatInput } from "@/components/ui/chat-input";
+} from "../ui/card";
+import { Message, MessageList } from "../ui/message";
+import { ChatInput } from "../ui/chat-input";
 import { CheckCircle, User, Bot } from "lucide-react";
 import {
   parseAIResponse,
   ExtractedData,
   determineNextStep,
   shouldShowSubmitButton,
-} from "@/lib/data-extraction";
+} from "../lib/data-extraction";
 
 // Updated Zod schema to include chat history
 const conversationalFormSchema = z.object({
@@ -65,7 +63,17 @@ interface ConversationState {
   isTyping: boolean;
 }
 
-export function ConversationalForm() {
+interface ConversationalFormProps {
+  apiEndpoint?: string;
+  onFormSubmit?: (data: any) => void;
+  onFormError?: (error: any) => void;
+}
+
+export function ConversationalForm({
+  apiEndpoint = "/api/chat",
+  onFormSubmit,
+  onFormError,
+}: ConversationalFormProps = {}) {
   const [conversationState, setConversationState] = useState<ConversationState>(
     {
       currentStep: "loan_amount",
@@ -112,9 +120,17 @@ export function ConversationalForm() {
         const validatedData = conversationalFormSchema.parse(submissionData);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         console.log("Form submitted:", validatedData);
+
+        if (onFormSubmit) {
+          onFormSubmit(validatedData);
+        }
+
         setIsSubmitted(true);
       } catch (error) {
         console.error("Error submitting form:", error);
+        if (onFormError) {
+          onFormError(error);
+        }
       } finally {
         setIsSubmitting(false);
       }
@@ -152,7 +168,7 @@ export function ConversationalForm() {
             field === "loanAmount" && typeof value === "number"
               ? value.toString()
               : value;
-          form.setFieldValue(field as keyof FormData, formValue);
+          form.setFieldValue(field as keyof FormData, String(formValue));
           console.log(`Successfully set ${field} to ${formValue}`);
         } catch (error) {
           console.error(`Error setting field ${field}:`, error);
@@ -178,7 +194,7 @@ export function ConversationalForm() {
     }));
 
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch(apiEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -228,6 +244,9 @@ export function ConversationalForm() {
       }));
     } catch (error) {
       console.error("Error sending message:", error);
+      if (onFormError) {
+        onFormError(error);
+      }
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
@@ -383,7 +402,7 @@ export function ConversationalForm() {
             ) : (
               <ChatInput
                 onSendMessage={handleSendMessage}
-                disabled={conversationState.isTyping || isFormComplete}
+                disabled={Boolean(conversationState.isTyping || isFormComplete)}
                 placeholder={
                   conversationState.currentStep === "loan_amount"
                     ? "Enter loan amount..."

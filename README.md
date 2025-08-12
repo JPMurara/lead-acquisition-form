@@ -1,36 +1,228 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Conversational Form Widget
 
-## Getting Started
+A React-based conversational form widget that can be easily embedded on any website via jsDelivr CDN.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- 🤖 AI-powered conversational interface
+- 📝 Multi-step form completion
+- 🎨 Modern, responsive UI with Tailwind CSS
+- 🔧 Customizable API endpoints
+- 📊 Form validation and error handling
+- 🚀 Easy integration via CDN
+
+## Installation
+
+### Via jsDelivr (Recommended)
+
+Once published to npm, you can include the widget directly via jsDelivr:
+
+```html
+<!-- Include React and React-DOM -->
+<script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+
+<!-- Include the widget -->
+<script src="https://cdn.jsdelivr.net/npm/conversational-form-widget@1.0.0/dist/index.umd.min.js"></script>
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Via npm
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install conversational-form-widget
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Usage
 
-## Learn More
+### Basic Usage
 
-To learn more about Next.js, take a look at the following resources:
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Conversational Form Demo</title>
+    <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/conversational-form-widget@1.0.0/dist/index.umd.min.js"></script>
+</head>
+<body>
+    <div id="conversational-form"></div>
+    
+    <script>
+        const { ConversationalFormWidget } = window.ConversationalFormWidget;
+        
+        ReactDOM.render(
+            React.createElement(ConversationalFormWidget, {
+                apiEndpoint: 'https://your-api.com/api/chat',
+                onFormSubmit: (data) => {
+                    console.log('Form submitted:', data);
+                    // Handle form submission
+                },
+                onFormError: (error) => {
+                    console.error('Form error:', error);
+                    // Handle errors
+                }
+            }),
+            document.getElementById('conversational-form')
+        );
+    </script>
+</body>
+</html>
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### React Component Usage
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```jsx
+import { ConversationalFormWidget } from 'conversational-form-widget';
 
-## Deploy on Vercel
+function App() {
+    const handleFormSubmit = (data) => {
+        console.log('Form submitted:', data);
+        // Send data to your backend
+    };
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    const handleFormError = (error) => {
+        console.error('Form error:', error);
+        // Handle errors
+    };
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    return (
+        <ConversationalFormWidget
+            apiEndpoint="https://your-api.com/api/chat"
+            onFormSubmit={handleFormSubmit}
+            onFormError={handleFormError}
+        />
+    );
+}
+```
+
+### ES Module Usage
+
+```html
+<script type="module">
+    import { ConversationalFormWidget } from 'https://cdn.jsdelivr.net/npm/conversational-form-widget@1.0.0/dist/index.esm.js';
+    
+    // Use the widget
+    const widget = new ConversationalFormWidget({
+        apiEndpoint: 'https://your-api.com/api/chat'
+    });
+    
+    widget.mount('#conversational-form');
+</script>
+```
+
+## API Reference
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `apiEndpoint` | `string` | `"/api/chat"` | The API endpoint for the chat functionality |
+| `onFormSubmit` | `function` | `undefined` | Callback function called when form is submitted |
+| `onFormError` | `function` | `undefined` | Callback function called when an error occurs |
+| `theme` | `"light" \| "dark"` | `"light"` | Theme for the widget |
+| `containerId` | `string` | `"conversational-form-widget"` | ID for the container element |
+
+### Form Data Structure
+
+The form collects the following data:
+
+```typescript
+interface FormData {
+  loanAmount: number;      // Loan amount (1000-40000)
+  loanType: string;        // Type of loan
+  name: string;           // Full name
+  email: string;          // Email address
+  phone: string;          // Phone number
+  chatHistory: string;    // Complete conversation history
+}
+```
+
+## API Requirements
+
+Your backend API should accept POST requests to the specified endpoint with the following structure:
+
+### Request
+```json
+{
+  "messages": [
+    {
+      "id": "string",
+      "role": "user" | "assistant" | "system",
+      "content": "string",
+      "timestamp": "Date"
+    }
+  ],
+  "currentStep": "loan_amount" | "loan_type" | "personal_details",
+  "formData": {
+    // Current form data
+  }
+}
+```
+
+### Response
+```json
+{
+  "response": "string",  // AI response message
+  "error": "string"      // Optional error message
+}
+```
+
+## Development
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+### Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Build the widget:
+   ```bash
+   npm run build
+   ```
+
+4. Test locally:
+   ```bash
+   npm run dev
+   ```
+
+### Project Structure
+
+```
+src/
+├── components/
+│   ├── ConversationalForm.tsx      # Main form component
+│   └── ConversationalFormWidget.tsx # Widget wrapper
+├── ui/                              # UI components
+│   ├── button.tsx
+│   ├── card.tsx
+│   ├── chat-input.tsx
+│   ├── input.tsx
+│   ├── label.tsx
+│   └── message.tsx
+├── lib/                             # Utility functions
+│   ├── data-extraction.ts
+│   └── utils.ts
+└── index.ts                         # Main entry point
+```
+
+## Publishing to npm
+
+1. Update the version in `package.json`
+2. Build the project: `npm run build`
+3. Publish to npm: `npm publish --access public`
+
+## License
+
+MIT License - see LICENSE file for details.
+
+## Support
+
+For issues and questions, please open an issue on the GitHub repository.
