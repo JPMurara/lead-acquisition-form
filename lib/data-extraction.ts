@@ -51,10 +51,10 @@ export const extractLoanType = (text: string): string | null => {
 };
 
 export const extractName = (text: string): string | null => {
-  // Look for patterns like "my name is John" or "I'm John" or "John Doe"
+  // Look for AI acknowledgments like "Thank you Kate!" or "Great, Kate!"
   const namePatterns = [
-    /(?:my name is|i'm|i am|call me)\s+([a-zA-Z\s]+)/i,
-    /^([a-zA-Z\s]+)$/i, // If the entire text looks like a name
+    /(?:thank you|great|perfect|excellent|awesome|thanks)\s+([a-zA-Z]+)/i, // AI acknowledgments
+    /(?:thank you|great|perfect|excellent|awesome|thanks),?\s+([a-zA-Z]+)/i, // With optional comma
   ];
 
   for (const pattern of namePatterns) {

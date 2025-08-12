@@ -114,18 +114,29 @@ export function ConversationalForm() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversationState.messages]);
 
-  // Sync conversation data to form
+  // Fix the useEffect dependency array and add better logging
   useEffect(() => {
+    console.log(
+      "useEffect triggered with formData:",
+      conversationState.formData
+    );
+
     Object.entries(conversationState.formData).forEach(([field, value]) => {
-      console.log("conversationState.formData", conversationState.formData);
-      console.log("field", field);
-      console.log("value", value);
-      if (value !== undefined) {
-        console.log("Setting field:", field, "to value:", value);
-        form.setFieldValue(field as keyof FormData, value);
+      console.log(`Processing field: ${field}, value: ${value}`);
+
+      if (value !== undefined && value !== null && value !== "") {
+        console.log(`Setting field: ${field} to value: ${value}`);
+        try {
+          form.setFieldValue(field as keyof FormData, value);
+          console.log(`Successfully set ${field} to ${value}`);
+        } catch (error) {
+          console.error(`Error setting field ${field}:`, error);
+        }
+      } else {
+        console.log(`Skipping field ${field} - value is falsy: ${value}`);
       }
     });
-  }, [conversationState.formData, form]);
+  }, [conversationState.formData]); // Remove 'form' from dependency array
 
   const handleSendMessage = async (userMessage: string) => {
     const userMsg: Message = {
