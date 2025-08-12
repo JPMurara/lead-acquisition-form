@@ -286,30 +286,41 @@ export function ConversationalForm() {
                 <div ref={messagesEndRef} />
               </MessageList>
             </div>
-            <ChatInput
-              onSendMessage={handleSendMessage}
-              disabled={conversationState.isTyping || !!isFormComplete}
-              placeholder={
-                conversationState.currentStep === "loan_amount"
-                  ? "Enter loan amount..."
-                  : conversationState.currentStep === "loan_type"
-                  ? "Choose loan type..."
-                  : "Provide your details..."
-              }
-            />
+            {isFormComplete ? (
+              <>
+                <div className="pt-4 border-t">
+                  <Button
+                    onClick={() => form.handleSubmit()}
+                    className="w-full"
+                    disabled={!isFormComplete || isSubmitting}
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit Application"}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <ChatInput
+                onSendMessage={handleSendMessage}
+                disabled={conversationState.isTyping || !!isFormComplete}
+                placeholder={
+                  conversationState.currentStep === "loan_amount"
+                    ? "Enter loan amount..."
+                    : conversationState.currentStep === "loan_type"
+                    ? "Choose loan type..."
+                    : "Provide your details..."
+                }
+              />
+            )}
           </CardContent>
         </Card>
 
         {/* Form Preview */}
+        {/* Not for UI preview. Only used here to verify the form data coming from AI. Would be hidden from client in production*/}
         <Card className="h-[600px] flex flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
               Application Summary
             </CardTitle>
-            <CardDescription>
-              Your information will be filled as we chat
-            </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col">
             <div className="flex-1 space-y-4">
@@ -394,17 +405,6 @@ export function ConversationalForm() {
                   )}
                 </div>
               </div>
-            </div>
-
-            {/* Submit Button */}
-            <div className="pt-4 border-t">
-              <Button
-                onClick={() => form.handleSubmit()}
-                className="w-full"
-                disabled={!isFormComplete || isSubmitting}
-              >
-                {isSubmitting ? "Submitting..." : "Submit Application"}
-              </Button>
             </div>
           </CardContent>
         </Card>
