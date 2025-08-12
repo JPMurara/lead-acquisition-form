@@ -90,34 +90,3 @@ export const determineNextStep = (
       return "loan_amount";
   }
 };
-
-// Hybrid approach: Check AI response AND form completion state
-export const shouldShowSubmitButton = (
-  aiResponse: string,
-  formData: ExtractedData,
-  currentStep: string
-): boolean => {
-  // Primary check: AI explicitly says to show button
-  const submitPattern = [
-    /submit\w* your application by clicking the button below/i,
-    /submit\w* your application/i,
-    /click\w* the button below/i,
-  ];
-  const aiSaysShowButton = submitPattern.some((pattern) =>
-    pattern.test(aiResponse)
-  );
-
-  // Secondary check: Form is complete and we're in final step
-  const isComplete = Boolean(
-    formData.name &&
-      formData.email &&
-      formData.phone &&
-      formData.loanAmount &&
-      formData.loanType
-  );
-
-  const isFinalStep = currentStep === "complete";
-
-  // Show button if AI says so OR if form is complete and in final step
-  return aiSaysShowButton || (isComplete && isFinalStep);
-};

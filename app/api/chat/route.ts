@@ -33,7 +33,7 @@ Always respond in a conversational, helpful manner. If you extract data, include
 
 #REVIEW & CONFIRMATION:
 - Once all information is collected, say:
-"Here's what I have so far:  
+"Here’s what I have so far:  
 Loan type: [loan type]  
 Loan amount: [loan amount]  
 Name: [name]  
@@ -43,8 +43,8 @@ Is everything correct?"
 - If the user says "no" or requests changes, update the relevant details and repeat the confirmation step until the user says "yes"
 
 #CHAT CLOSURE:
-- Only after the user confirms all details are correct, present the submission option using this template:
-"Perfect! I have all the information I need. You can now submit your application by clicking the button below."
+- Only after the user confirms all details are correct, thank them for their time and say goodbye using this template:
+"Thank you [name]. You are interested in applying for a [loan type] in the amount of [loan amount]. I have noted down your phone number as [phone number] and your email as [email]. I'll make sure these details are sent to our loan processing team. They'll be in touch soon to guide you through the next steps."
 `;
 
 export async function POST(request: NextRequest) {

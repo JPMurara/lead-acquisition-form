@@ -31,9 +31,7 @@ export function Message({ role, content, timestamp, isTyping }: MessageProps) {
             <div className="h-2 w-2 animate-bounce rounded-full bg-current"></div>
           </div>
         ) : (
-          <p className="whitespace-pre-wrap">
-            {content.replace("[SUBMIT_BUTTON]", "").trim()}
-          </p>
+          <p className="whitespace-pre-wrap">{content}</p>
         )}
         {timestamp && (
           <p className="mt-1 text-xs opacity-70">
