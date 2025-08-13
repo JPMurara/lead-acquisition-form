@@ -16,10 +16,10 @@ Before you begin, ensure you have the following installed:
 2. **Install dependencies**: npm install
 
 3. **Set up environment variables**:
-   Create a `.env.local` file in the root directory and add the configuration below
+   Create a `.env.local` file in the root directory and add the configuration below (that is my actual API key, so you can test in your local env, let me know once you are done testing and I will revoke the key)
 
    ```env
-   OPENAI_API_KEY=your_api_key
+   OPENAI_API_KEY=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
    ```
 
 4. **Start the development server**: npm run dev
