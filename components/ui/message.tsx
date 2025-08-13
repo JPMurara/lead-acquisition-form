@@ -10,7 +10,6 @@ interface MessageProps {
 
 export function Message({ role, content, timestamp, isTyping }: MessageProps) {
   const isUser = role === "user";
-  const isAssistant = role === "assistant";
 
   return (
     <div
@@ -48,9 +47,5 @@ export function Message({ role, content, timestamp, isTyping }: MessageProps) {
 }
 
 export function MessageList({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col space-y-4 overflow-y-auto p-4">
-      {children}
-    </div>
-  );
+  return <div className="flex flex-col space-y-4 p-4">{children}</div>;
 }

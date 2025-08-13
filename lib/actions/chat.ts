@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+"use server";
+
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const SYSTEM_PROMPT = `
 #ROLE
@@ -17,6 +16,7 @@ You are a friendly loan advisor assistant. Your role is to guide users through a
 5. Collect information in this order: loan amount → loan type → personal details
 6. After collecting all details, present a summary of the user's loan amount, loan type, name, phone, and email for review before closure
 7. If the user requests changes to any detail, update the information and re-confirm until the user explicitly agrees everything is correct
+8. Never chat with the user about anything else rather than the loan application process. If the user asks about anything else, politely say that you are only here to help with the loan application process and redirect them to the loan application process.
 
 #BUSINESS RULES:
 - **Loan amounts**: $1,000 - $40,000 only
@@ -52,39 +52,31 @@ Phone: [phone number]
 Email: [email]"
 `;
 
-export async function POST(request: NextRequest) {
-  try {
-    const { messages, currentStep, formData } = await request.json();
+export async function chatAction(input: {
+  messages: { role: "user" | "assistant" | "system"; content: string }[];
+  formData: unknown;
+}): Promise<{ response: string; formData: unknown }> {
+  const conversationHistory = input.messages.map((msg) => ({
+    role: msg.role,
+    content: msg.content,
+  }));
 
-    const conversationHistory = messages.map((msg: any) => ({
-      role: msg.role,
-      content: msg.content,
-    }));
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4",
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      ...conversationHistory,
+    ],
+    temperature: 0.7,
+    max_tokens: 500,
+  });
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        ...conversationHistory,
-      ],
-      temperature: 0.7,
-      max_tokens: 500,
-    });
+  const aiResponse =
+    completion.choices[0]?.message?.content ||
+    "I apologize, but I encountered an error. Please try again.";
 
-    const aiResponse =
-      response.choices[0]?.message?.content ||
-      "I apologize, but I encountered an error. Please try again.";
-
-    return NextResponse.json({
-      response: aiResponse,
-      currentStep,
-      formData,
-    });
-  } catch (error) {
-    console.error("OpenAI API error:", error);
-    return NextResponse.json(
-      { error: "Failed to process your request" },
-      { status: 500 }
-    );
-  }
+  return {
+    response: aiResponse,
+    formData: input.formData,
+  };
 }
