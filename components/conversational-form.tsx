@@ -25,9 +25,19 @@ import {
 // Updated Zod schema to include chat history
 const conversationalFormSchema = z.object({
   loanAmount: z
-    .number()
-    .min(1000, "Loan amount must be at least $1,000")
-    .max(40000, "Loan amount must be no more than $40,000"),
+    .string()
+    .min(1, "Loan amount is required")
+    .transform((val) => {
+      const num = parseFloat(val);
+      if (isNaN(num)) throw new Error("Loan amount must be a valid number");
+      return num;
+    })
+    .pipe(
+      z
+        .number()
+        .min(1000, "Loan amount must be at least $1,000")
+        .max(40000, "Loan amount must be no more than $40,000")
+    ),
   loanType: z.string().min(1, "Loan type is required"),
   name: z
     .string()
@@ -83,6 +93,7 @@ export function ConversationalForm() {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const form = useForm({
@@ -95,6 +106,7 @@ export function ConversationalForm() {
       chatHistory: "",
     },
     onSubmit: async ({ value }) => {
+      setError(null); // Clear previous errors
       setIsSubmitting(true);
       try {
         // Format chat history before submission
@@ -108,11 +120,46 @@ export function ConversationalForm() {
         };
 
         const validatedData = conversationalFormSchema.parse(submissionData);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log("Form submitted:", validatedData);
-        setIsSubmitted(true);
+
+        // Submit to CRM API for lead processing
+        try {
+          const response = await fetch("/api/crm", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              operation: "create",
+              object: "lead",
+              data: {
+                name: validatedData.name,
+                email: validatedData.email,
+                phone: validatedData.phone,
+                loanAmount: validatedData.loanAmount,
+                loanType: validatedData.loanType,
+                chatHistory: formattedChatHistory,
+              },
+            }),
+          });
+
+          const result = await response.json();
+
+          if (!result.success) {
+            throw new Error(result.error || "Failed to submit lead");
+          }
+
+          console.log("Lead submitted successfully:", result);
+          setIsSubmitted(true);
+        } catch (error) {
+          console.error("Error submitting form:", error);
+          // Simple error handling - just log and show generic message
+          alert("Failed to submit application. Please try again.");
+        } finally {
+          setIsSubmitting(false);
+        }
       } catch (error) {
         console.error("Error submitting form:", error);
+        // You might want to show an error message to the user here
       } finally {
         setIsSubmitting(false);
       }
@@ -137,11 +184,8 @@ export function ConversationalForm() {
     Object.entries(completeFormData).forEach(([field, value]) => {
       if (value !== undefined && value !== null && value !== "") {
         try {
-          // Convert loanAmount to string for the form
-          const formValue =
-            field === "loanAmount" && typeof value === "number"
-              ? value
-              : String(value);
+          // Convert all values to string for the form
+          const formValue = String(value);
           form.setFieldValue(field as keyof FormData, formValue);
         } catch (error) {
           console.error(`Error setting field ${field}:`, error);
