@@ -1,6 +1,4 @@
 "use client";
-
-import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,33 +39,30 @@ export function LeadForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const form = useForm({
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-    },
-    onSubmit: async ({ value }) => {
-      setIsSubmitting(true);
-      try {
-        const validatedData = leadFormSchema.parse(value);
-        const result = await submitLeadAction({
-          name: validatedData.name,
-          email: validatedData.email,
-          phone: validatedData.phone,
-        });
-        if (!result.success) {
-          throw new Error(result.error || "Failed to submit lead");
-        }
-        setIsSubmitted(true);
-      } catch (error) {
-        console.error("Error submitting form:", error);
-        alert("Failed to submit. Please try again.");
-      } finally {
-        setIsSubmitting(false);
+  const [values, setValues] = useState({ name: "", email: "", phone: "" });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsSubmitting(true);
+    try {
+      const validatedData = leadFormSchema.parse(values);
+      const result = await submitLeadAction({
+        name: validatedData.name,
+        email: validatedData.email,
+        phone: validatedData.phone,
+      });
+      if (!result.success) {
+        throw new Error(result.error || "Failed to submit lead");
       }
-    },
-  });
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Failed to submit. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (isSubmitted) {
     return (
@@ -93,117 +88,49 @@ export function LeadForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            form.handleSubmit();
-          }}
-          className="space-y-4"
-        >
-          <form.Field
-            name="name"
-            validators={{
-              onChange: ({ value }) => {
-                const result = leadFormSchema.shape.name.safeParse(value);
-                return result.success
-                  ? undefined
-                  : result.error.issues[0]?.message;
-              },
-            }}
-          >
-            {(field) => (
-              <div className="space-y-2">
-                <Label htmlFor={field.name}>Full Name</Label>
-                <Input
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="Enter your full name"
-                  className={field.state.meta.errors ? "border-red-500" : ""}
-                />
-                {field.state.meta.errors && (
-                  <p className="text-sm text-red-500">
-                    {field.state.meta.errors.join(", ")}
-                  </p>
-                )}
-              </div>
-            )}
-          </form.Field>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Full Name</Label>
+            <Input
+              id="name"
+              name="name"
+              value={values.name}
+              onChange={(e) =>
+                setValues((v) => ({ ...v, name: e.target.value }))
+              }
+              placeholder="Enter your full name"
+            />
+          </div>
 
-          <form.Field
-            name="email"
-            validators={{
-              onChange: ({ value }) => {
-                const result = leadFormSchema.shape.email.safeParse(value);
-                return result.success
-                  ? undefined
-                  : result.error.issues[0]?.message;
-              },
-            }}
-          >
-            {(field) => (
-              <div className="space-y-2">
-                <Label htmlFor={field.name}>Email Address</Label>
-                <Input
-                  id={field.name}
-                  name={field.name}
-                  type="email"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="Enter your email address"
-                  className={field.state.meta.errors ? "border-red-500" : ""}
-                />
-                {field.state.meta.errors && (
-                  <p className="text-sm text-red-500">
-                    {field.state.meta.errors.join(", ")}
-                  </p>
-                )}
-              </div>
-            )}
-          </form.Field>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email Address</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              value={values.email}
+              onChange={(e) =>
+                setValues((v) => ({ ...v, email: e.target.value }))
+              }
+              placeholder="Enter your email address"
+            />
+          </div>
 
-          <form.Field
-            name="phone"
-            validators={{
-              onChange: ({ value }) => {
-                const result = leadFormSchema.shape.phone.safeParse(value);
-                return result.success
-                  ? undefined
-                  : result.error.issues[0]?.message;
-              },
-            }}
-          >
-            {(field) => (
-              <div className="space-y-2">
-                <Label htmlFor={field.name}>Phone Number</Label>
-                <Input
-                  id={field.name}
-                  name={field.name}
-                  type="tel"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="Enter your phone number"
-                  className={field.state.meta.errors ? "border-red-500" : ""}
-                />
-                {field.state.meta.errors && (
-                  <p className="text-sm text-red-500">
-                    {field.state.meta.errors.join(", ")}
-                  </p>
-                )}
-              </div>
-            )}
-          </form.Field>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number</Label>
+            <Input
+              id="phone"
+              name="phone"
+              type="tel"
+              value={values.phone}
+              onChange={(e) =>
+                setValues((v) => ({ ...v, phone: e.target.value }))
+              }
+              placeholder="Enter your phone number"
+            />
+          </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSubmitting || !form.state.canSubmit}
-          >
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
         </form>

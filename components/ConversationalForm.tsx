@@ -1,6 +1,4 @@
 "use client";
-
-import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Message, MessageList } from "@/components/ui/message";
 import { ChatInput } from "@/components/ui/chat-input";
-import { CheckCircle, User, Bot } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import {
   parseAIResponse,
   ExtractedData,
@@ -24,22 +22,12 @@ import {
 import { chatAction } from "@/lib/actions/chat";
 import { submitLeadAction } from "@/lib/actions/submit-lead";
 
-// Updated Zod schema to include chat history
+// Zod schema for submission validation (matches extracted data types)
 const conversationalFormSchema = z.object({
   loanAmount: z
-    .string()
-    .min(1, "Loan amount is required")
-    .transform((val) => {
-      const num = parseFloat(val);
-      if (isNaN(num)) throw new Error("Loan amount must be a valid number");
-      return num;
-    })
-    .pipe(
-      z
-        .number()
-        .min(1000, "Loan amount must be at least $1,000")
-        .max(40000, "Loan amount must be no more than $40,000")
-    ),
+    .number({ invalid_type_error: "Loan amount must be a number" })
+    .min(1000, "Loan amount must be at least $1,000")
+    .max(40000, "Loan amount must be no more than $40,000"),
   loanType: z.string().min(1, "Loan type is required"),
   name: z
     .string()
@@ -57,9 +45,9 @@ const conversationalFormSchema = z.object({
       /^[\+]?[0-9][\d\s\-\(\)]{7,15}$/,
       "Please enter a valid phone number"
     ),
-  chatHistory: z.string().optional(), // Hidden field for chat history
+  chatHistory: z.string().optional(),
 });
-
+// Zod schema for form data type
 type FormData = z.infer<typeof conversationalFormSchema>;
 
 interface Message {
@@ -98,90 +86,45 @@ export function ConversationalForm() {
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const form = useForm({
-    defaultValues: {
-      loanAmount: "", // Change from undefined to empty string
-      loanType: "",
-      name: "",
-      email: "",
-      phone: "",
-      chatHistory: "",
-    },
-    onSubmit: async ({ value }) => {
-      setError(null); // Clear previous errors
-      setIsSubmitting(true);
-      try {
-        // Format chat history before submission
-        const formattedChatHistory = conversationState.messages
-          .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
-          .join("\n\n");
+  const handleSubmitApplication = async () => {
+    setError(null);
+    setIsSubmitting(true);
+    try {
+      const formattedChatHistory = conversationState.messages
+        .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+        .join("\n\n");
 
-        const submissionData = {
-          ...value,
-          chatHistory: formattedChatHistory,
-        };
+      const submissionData = {
+        loanAmount: conversationState.formData.loanAmount as number,
+        loanType: conversationState.formData.loanType as string,
+        name: conversationState.formData.name as string,
+        email: conversationState.formData.email as string,
+        phone: conversationState.formData.phone as string,
+        chatHistory: formattedChatHistory,
+      };
 
-        const validatedData = conversationalFormSchema.parse(submissionData);
+      const validatedData = conversationalFormSchema.parse(submissionData);
 
-        // Submit using server action
-        try {
-          const result = await submitLeadAction({
-            name: validatedData.name,
-            email: validatedData.email,
-            phone: validatedData.phone,
-            loanAmount: validatedData.loanAmount,
-            loanType: validatedData.loanType,
-            chatHistory: formattedChatHistory,
-          });
-
-          if (!result.success) {
-            throw new Error(result.error || "Failed to submit lead");
-          }
-
-          console.log("Lead submitted successfully:", result);
-          setIsSubmitted(true);
-        } catch (error) {
-          console.error("Error submitting form:", error);
-          alert("Failed to submit application. Please try again.");
-        } finally {
-          setIsSubmitting(false);
-        }
-      } catch (error) {
-        console.error("Error submitting form:", error);
-        // You might want to show an error message to the user here
-      } finally {
-        setIsSubmitting(false);
+      const result = await submitLeadAction(validatedData);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to submit lead");
       }
-    },
-  });
+
+      setIsSubmitted(true);
+    } catch (err) {
+      console.error("Error submitting form:", err);
+      alert("Failed to submit application. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversationState.messages]);
 
-  // Update the useEffect to also handle chatHistory updates
-  useEffect(() => {
-    // Create a complete form data object including chat history
-    const completeFormData = {
-      ...conversationState.formData,
-      chatHistory: conversationState.messages
-        .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
-        .join("\n\n"),
-    };
-
-    Object.entries(completeFormData).forEach(([field, value]) => {
-      if (value !== undefined && value !== null && value !== "") {
-        try {
-          // Convert all values to string for the form
-          const formValue = String(value);
-          form.setFieldValue(field as keyof FormData, formValue);
-        } catch (error) {
-          console.error(`Error setting field ${field}:`, error);
-        }
-      }
-    });
-  }, [conversationState.formData, conversationState.messages]); // Add messages to dependency
+  // No form library; state is already in conversationState
 
   const handleSendMessage = async (userMessage: string) => {
     const userMsg: Message = {
@@ -321,7 +264,7 @@ export function ConversationalForm() {
               <>
                 <div className="pt-4 border-t">
                   <Button
-                    onClick={() => form.handleSubmit()}
+                    onClick={handleSubmitApplication}
                     className="w-full"
                     disabled={!isFormComplete || isSubmitting}
                   >
