@@ -1,15 +1,20 @@
 /**
  * Generic CRM API Route
  *
- * This file outlines the approach for a generic CRM API that can handle:
- * - Account creation and search
- * - Lead creation
- * - Can be extended to other Salesforce operations
+ * Role in the architecture:
+ * - Acts as the HTTP gateway for CRM-related operations
+ * - Coordinates the two core services:
+ *   - lead-processor.ts → business rules, validation and data transformation
+ *   - salesforce.ts → direct Salesforce (SOQL/REST) operations
+ * - Does NOT implement business rules or Salesforce calls itself
+ *
+ * Focus: HTTP handling, light request validation, orchestration, and response formatting.
+ */
 
 /**
  * Route Design:
  *
- * The API follows RESTful principles and provides generic endpoints for
+ * The API follows REST principles and provides generic endpoints for
  * common CRM operations. This approach allows for:
  * 1. **Flexibility**: Handle different types of CRM operations
  * 2. **Reusability**: Same endpoints for different business processes
@@ -22,33 +27,31 @@
 /**
  * API Endpoints Structure:
  *
- * POST /api/crm/accounts
- * - Create new account
- *
- * GET /api/crm/accounts/:identifier
- * - Find account by email and name (first and last name)
- * - Return account details if found
- *
- * POST /api/crm/leads
- * - Create new lead
+ * POST /api/crm
+ * - Receives a request (e.g., to create a lead)
+ * - Uses lead-processor.ts to validate/transform the payload
+ * - Uses salesforce.ts to search/create Account and create Lead
+ * - Returns a concise result (e.g., accountId, leadId)
  */
 
 /**
- * Account Creation & Lookup Strategy:
+ * How this file manages lead-processor.ts and salesforce.ts:
+ * 1. The API route (route.ts) calls lead-processor.ts first to prepare data
+ * 2. Then the API route passes that prepared data into salesforce.ts methods
  *
- * 1. **Account Search Logic**:
+ * 2.1. **Account Search Logic**:
  *    - Search for a combination of name and email
  *    - Return the matched account
  *
- * 2. **Duplicate Prevention**:
+ * 2.2. **Duplicate Prevention**:
  *    - Check for exact email and name
  *
- * 3. IF no account is found -> **Account Creation**:
+ * 2.3. IF no account is found -> **Account Creation**:
  *    - Validate all required fields
  *    - Set appropriate values for account fields
  *    - Perform account creation
  *
- * 4. **Lead creation**:
+ * 2.4. **Lead creation**:
  *    - Create a new lead record
  *    - Set appropriate values for lead fields
  *    - Perform lead creation linked to the account (either existing or new)
@@ -57,29 +60,13 @@
 /**
  * Error Handling Strategy:
  *
- * 1. **Validation Errors** (400):
+ * 1. **Validation Errors**
  *    - Field-level validation failures
  *    - Missing required fields
  *    - Invalid data formats
- *    - Business rule violations
  *
- * 2. **Authentication Errors** (401):
+ * 2. **Authentication Errors**
  *    - Invalid API credentials
  *    - Expired authentication tokens
- *    - Insufficient permissions
  *
- * 3. **Not Found Errors** (404):
- *    - Contact/lead not found
- *    - Invalid object references
- *    - Deleted records
- *
- * 4. **Conflict Errors** (409):
- *    - Duplicate records found
- *    - Concurrent modification conflicts
- *    - Business rule conflicts
- *
- * 5. **Server Errors** (500):
- *    - CRM system unavailable
- *    - Database connection issues
- *    - Unexpected system errors
  */
