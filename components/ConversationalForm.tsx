@@ -1,5 +1,4 @@
 "use client";
-import { z } from "zod";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,9 +16,10 @@ import { CheckCircle } from "lucide-react";
 import { parseAIResponse, ExtractedData } from "@/lib/data-extraction";
 import { chatAction } from "@/lib/actions/chat";
 import { submitLeadAction } from "@/lib/actions/submit-lead";
-import { conversationalFormSchema, FormData } from "@/lib/schemas";
+import { conversationalFormSchema } from "@/lib/schemas";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Image from "next/image";
 
 interface Message {
   id: string;
@@ -189,9 +189,11 @@ export function ConversationalForm({
           <Card className="h-full flex flex-col">
             <CardHeader className="flex-shrink-0">
               <div className="flex flex-row items-center justify-between">
-                <img
+                <Image
                   src="https://www.umeloans.com.au/wp-content/uploads/2024/11/UME-logo-new-with-registered-trademark-2024.png"
                   alt="UME Logo"
+                  width={80}
+                  height={40}
                   className="w-20"
                 />
                 <CardTitle className="flex items-center gap-2">

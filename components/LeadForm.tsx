@@ -33,8 +33,6 @@ const leadFormSchema = z.object({
     ),
 });
 
-type FormData = z.infer<typeof leadFormSchema>;
-
 export function LeadForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -70,8 +68,8 @@ export function LeadForm() {
         <CardHeader>
           <CardTitle className="text-green-600">Thank You!</CardTitle>
           <CardDescription>
-            Your information has been submitted successfully. We'll be in touch
-            soon!
+            Your information has been submitted successfully. We will be in
+            touch soon!
           </CardDescription>
         </CardHeader>
       </Card>
@@ -83,7 +81,7 @@ export function LeadForm() {
       <CardHeader>
         <CardTitle>Lead Acquisition Form</CardTitle>
         <CardDescription>
-          Please provide your contact information and we'll get back to you
+          Please provide your contact information and we will get back to you
           shortly.
         </CardDescription>
       </CardHeader>
