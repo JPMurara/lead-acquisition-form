@@ -141,10 +141,14 @@ This deployment demonstrates the feasibility of creating a conversational form w
 
 1. **Form Submission**: User completes the conversational form
 2. **Validation**: Data is validated using Zod schemas
-3. **Account Lookup**: System checks if account exists using SOQL query
-4. **Account Creation**: If no account exists, creates new account
-5. **Lead Creation**: Creates lead linked to the account
-6. **Response**: Returns success/error response to client
+3. **Local DB Save (Drizzle)**: Server Action saves to our own DB first
+4. **CRM Processing**: Attempts Salesforce account/lead creation
+5. **Response**: Returns success/error response to client
+
+Both local DB and CRM processing works in this way:
+1. **Account Lookup**: System checks if account exists
+2. **Account Creation**: If no account exists, creates new account
+2. **Lead Creation**: Creates lead linked to the account
 
 ## Salesforce Data Model
 
@@ -196,7 +200,29 @@ The system implements comprehensive error handling:
 3. **Form Error**: Case form submission fails due to data types, the UI should present an form prefilled for the user who can edit any possible issues in the form input and retry to submit.
 4. **Email triggers**: Submitting the loan application also triggers a email confirmation message to the client.
 
-## Repository folder structure and rationale
+## Local Database using Drizzle
+
+- We now persist submissions to our own DB using Drizzle ORM with a Postgres-style schema.
+- Schemas live in `lib/db/schema.ts`:
+- The client calls a single Server Action `submitLeadAction`, which performs the DB write and then proceeds with CRM work.
+
+### Why Drizzle
+- Type-safe schema and queries, easyt to use (Developer Experience).
+- Works cleanly with Next.js Server Actions.
+- Easy to migrate to managed Postgres later.
+
+### Updated Workflow with Our DB
+- `components/ConversationalForm.tsx` calls `submitLeadAction(validatedData)`.
+- `lib/actions/submit-lead.ts` (Server Action):
+  - Saves to our DB first: find-or-create account, then create lead linked to that account.
+  - Continues with Salesforce CRM creation.
+
+### Failure Handling and Manual CRM Submit
+- If CRM account/lead creation fails, the submission is still in our DB.
+- The UI can prompt the user to click a "Submit to CRM" button to retry the CRM step manually while we keep the local records intact.
+- This ensures no data loss and provides a user-driven recovery path.
+
+## Repository folder structure
 
 This project uses Next.js with Server Actions. The structure separates UI, server entrypoints, business logic, and external integrations for clarity, testability, and security.
 
