@@ -1,4 +1,4 @@
-import { ConversationalForm } from "@/components/conversational-form";
+import { ConversationalForm } from "@/components/ConversationalForm";
 
 export default function Home() {
   return (
