@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Message, MessageList } from "@/components/ui/message";
 import { ChatInput } from "@/components/ui/chat-input";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, CloudCog } from "lucide-react";
 import { parseAIResponse, ExtractedData } from "@/lib/data-extraction";
 import { chatAction } from "@/lib/actions/chat";
 import { submitLeadAction } from "@/lib/actions/submit-lead";
@@ -57,6 +57,7 @@ export function ConversationalForm({
     }
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Chat auto scroll ref
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const handleSubmitApplication = async () => {
@@ -121,20 +122,19 @@ export function ConversationalForm({
       messages: [...prev.messages, userMsg],
       isTyping: true,
     }));
-
     try {
-      const minimalMessages = [...conversationState.messages, userMsg].map(
-        (m) => ({ role: m.role, content: m.content })
-      );
-
+      const transformedMessageData = [
+        ...conversationState.messages,
+        userMsg,
+      ].map((m) => ({ role: m.role, content: m.content }));
+      // send the user message to the LLM
       const data = await chatAction({
-        messages: minimalMessages,
+        messages: transformedMessageData,
         formData: conversationState.formData,
       });
 
       // Extract data from AI response (only on final confirmation)
       const extractedData = parseAIResponse(data.response);
-
       const updatedFormData = {
         ...conversationState.formData,
         ...extractedData,
@@ -194,7 +194,7 @@ export function ConversationalForm({
                   alt="UME Logo"
                   width={80}
                   height={40}
-                  className="w-20"
+                  className="w-20 h-auto"
                 />
                 <CardTitle className="flex items-center gap-2">
                   Loan Assistant
