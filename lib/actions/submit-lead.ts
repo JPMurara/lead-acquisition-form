@@ -1,5 +1,33 @@
 "use server";
 
+// "DB insert" example
+async function saveLeadToDB(input: {
+  name: string;
+  email: string;
+  phone: string;
+  loanAmount?: number;
+  loanType?: string;
+  chatHistory?: string;
+}) {
+  try {
+    // 1) Check if account exists (by name + email)
+
+
+    // 2) If not exists, create account; else reuse existing
+    
+    // 3) Create lead linked to that account
+    
+    // Error handling case account creation or lead creation fails
+}
+  catch (error) {
+    console.error("Error creating lead or account:", error);
+    
+    // Handle specific database errors like duplicated keys, etc...
+   
+    return { success: false, error: "Failed to create lead" };
+  }
+}
+
 export async function submitLeadAction(input: {
   name: string;
   email: string;
@@ -11,7 +39,10 @@ export async function submitLeadAction(input: {
   { success: true; message: string } | { success: false; error: string }
 > {
   try {
-    // Simulate processing
+    // Save to own DB
+    // await saveLeadToDB(input);
+
+    // Salesforce CRM integration
     await new Promise((resolve) =>
       setTimeout(resolve, 1000 + Math.random() * 1500)
     );
