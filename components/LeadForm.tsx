@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useState } from "react";
+import { submitLeadAction } from "@/lib/actions/submit-lead";
 
 // Zod schema for form validation
 const leadFormSchema = z.object({
@@ -49,14 +50,19 @@ export function LeadForm() {
     onSubmit: async ({ value }) => {
       setIsSubmitting(true);
       try {
-        // Validate the entire form data with Zod
         const validatedData = leadFormSchema.parse(value);
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log("Form submitted:", validatedData);
+        const result = await submitLeadAction({
+          name: validatedData.name,
+          email: validatedData.email,
+          phone: validatedData.phone,
+        });
+        if (!result.success) {
+          throw new Error(result.error || "Failed to submit lead");
+        }
         setIsSubmitted(true);
       } catch (error) {
         console.error("Error submitting form:", error);
+        alert("Failed to submit. Please try again.");
       } finally {
         setIsSubmitting(false);
       }

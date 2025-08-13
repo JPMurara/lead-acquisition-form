@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+"use server";
+
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const SYSTEM_PROMPT = `
 #ROLE
@@ -52,39 +51,33 @@ Phone: [phone number]
 Email: [email]"
 `;
 
-export async function POST(request: NextRequest) {
-  try {
-    const { messages, currentStep, formData } = await request.json();
+export async function chatAction(input: {
+  messages: { role: "user" | "assistant" | "system"; content: string }[];
+  currentStep: string;
+  formData: unknown;
+}): Promise<{ response: string; currentStep: string; formData: unknown }> {
+  const conversationHistory = input.messages.map((msg) => ({
+    role: msg.role,
+    content: msg.content,
+  }));
 
-    const conversationHistory = messages.map((msg: any) => ({
-      role: msg.role,
-      content: msg.content,
-    }));
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4",
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      ...conversationHistory,
+    ],
+    temperature: 0.7,
+    max_tokens: 500,
+  });
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        ...conversationHistory,
-      ],
-      temperature: 0.7,
-      max_tokens: 500,
-    });
+  const aiResponse =
+    completion.choices[0]?.message?.content ||
+    "I apologize, but I encountered an error. Please try again.";
 
-    const aiResponse =
-      response.choices[0]?.message?.content ||
-      "I apologize, but I encountered an error. Please try again.";
-
-    return NextResponse.json({
-      response: aiResponse,
-      currentStep,
-      formData,
-    });
-  } catch (error) {
-    console.error("OpenAI API error:", error);
-    return NextResponse.json(
-      { error: "Failed to process your request" },
-      { status: 500 }
-    );
-  }
+  return {
+    response: aiResponse,
+    currentStep: input.currentStep,
+    formData: input.formData,
+  };
 }

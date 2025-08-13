@@ -21,6 +21,8 @@ import {
   ExtractedData,
   determineNextStep,
 } from "@/lib/data-extraction";
+import { chatAction } from "@/lib/actions/chat";
+import { submitLeadAction } from "@/lib/actions/submit-lead";
 
 // Updated Zod schema to include chat history
 const conversationalFormSchema = z.object({
@@ -121,28 +123,16 @@ export function ConversationalForm() {
 
         const validatedData = conversationalFormSchema.parse(submissionData);
 
-        // Submit to CRM API for lead processing
+        // Submit using server action
         try {
-          const response = await fetch("/api/crm", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              operation: "create",
-              object: "lead",
-              data: {
-                name: validatedData.name,
-                email: validatedData.email,
-                phone: validatedData.phone,
-                loanAmount: validatedData.loanAmount,
-                loanType: validatedData.loanType,
-                chatHistory: formattedChatHistory,
-              },
-            }),
+          const result = await submitLeadAction({
+            name: validatedData.name,
+            email: validatedData.email,
+            phone: validatedData.phone,
+            loanAmount: validatedData.loanAmount,
+            loanType: validatedData.loanType,
+            chatHistory: formattedChatHistory,
           });
-
-          const result = await response.json();
 
           if (!result.success) {
             throw new Error(result.error || "Failed to submit lead");
@@ -152,7 +142,6 @@ export function ConversationalForm() {
           setIsSubmitted(true);
         } catch (error) {
           console.error("Error submitting form:", error);
-          // Simple error handling - just log and show generic message
           alert("Failed to submit application. Please try again.");
         } finally {
           setIsSubmitting(false);
@@ -209,23 +198,15 @@ export function ConversationalForm() {
     }));
 
     try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messages: [...conversationState.messages, userMsg],
-          currentStep: conversationState.currentStep,
-          formData: conversationState.formData,
-        }),
+      const minimalMessages = [...conversationState.messages, userMsg].map(
+        (m) => ({ role: m.role, content: m.content })
+      );
+
+      const data = await chatAction({
+        messages: minimalMessages,
+        currentStep: conversationState.currentStep,
+        formData: conversationState.formData,
       });
-
-      const data = await response.json();
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
 
       // Extract data from AI response (only on final confirmation)
       const extractedData = parseAIResponse(
@@ -305,12 +286,18 @@ export function ConversationalForm() {
         {/* Chat Interface */}
         <Card className="h-[600px] flex flex-col">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bot className="h-5 w-5" />
-              Loan Assistant
-            </CardTitle>
+            <div className="flex flex-row items-center justify-between">
+              <img
+                src="https://www.umeloans.com.au/wp-content/uploads/2024/11/UME-logo-new-with-registered-trademark-2024.png"
+                alt="UME Logo"
+                className="w-28"
+              />
+              <CardTitle className="flex items-center gap-2">
+                Loan Assistant
+              </CardTitle>
+            </div>
             <CardDescription>
-              Chat with our AI assistant to complete your application
+              Chat with our virtual assistant to complete your application
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col p-0 overflow-y-auto">
