@@ -57,10 +57,7 @@ export const extractAllData = (text: string): ExtractedData => {
 };
 
 // Update parseAIResponse to detect this specific template
-export const parseAIResponse = (
-  aiResponse: string,
-  currentStep: string
-): ExtractedData => {
+export const parseAIResponse = (aiResponse: string): ExtractedData => {
   // Check if this is the final confirmation template
   const isFinalConfirmation =
     aiResponse.includes("Thank") &&
@@ -76,22 +73,4 @@ export const parseAIResponse = (
 
   // For all other messages, return empty object
   return {};
-};
-
-export const determineNextStep = (
-  currentStep: string,
-  formData: ExtractedData
-): string => {
-  switch (currentStep) {
-    case "loan_amount":
-      return formData.loanAmount ? "loan_type" : "loan_amount";
-    case "loan_type":
-      return formData.loanType ? "personal_details" : "loan_type";
-    case "personal_details":
-      return formData.name && formData.email && formData.phone
-        ? "complete"
-        : "personal_details";
-    default:
-      return "loan_amount";
-  }
 };

@@ -14,11 +14,7 @@ import {
 import { Message, MessageList } from "@/components/ui/message";
 import { ChatInput } from "@/components/ui/chat-input";
 import { CheckCircle } from "lucide-react";
-import {
-  parseAIResponse,
-  ExtractedData,
-  determineNextStep,
-} from "@/lib/data-extraction";
+import { parseAIResponse, ExtractedData } from "@/lib/data-extraction";
 import { chatAction } from "@/lib/actions/chat";
 import { submitLeadAction } from "@/lib/actions/submit-lead";
 
@@ -58,7 +54,6 @@ interface Message {
 }
 
 interface ConversationState {
-  currentStep: "loan_amount" | "loan_type" | "personal_details" | "complete";
   messages: Message[];
   formData: ExtractedData;
   isTyping: boolean;
@@ -67,7 +62,6 @@ interface ConversationState {
 export function ConversationalForm() {
   const [conversationState, setConversationState] = useState<ConversationState>(
     {
-      currentStep: "loan_amount",
       messages: [
         {
           id: "1",
@@ -147,25 +141,16 @@ export function ConversationalForm() {
 
       const data = await chatAction({
         messages: minimalMessages,
-        currentStep: conversationState.currentStep,
         formData: conversationState.formData,
       });
 
       // Extract data from AI response (only on final confirmation)
-      const extractedData = parseAIResponse(
-        data.response,
-        conversationState.currentStep
-      );
+      const extractedData = parseAIResponse(data.response);
 
       const updatedFormData = {
         ...conversationState.formData,
         ...extractedData,
       };
-
-      const nextStep = determineNextStep(
-        conversationState.currentStep,
-        updatedFormData
-      );
 
       const assistantMsg: Message = {
         id: (Date.now() + 1).toString(),
@@ -178,7 +163,6 @@ export function ConversationalForm() {
         ...prev,
         messages: [...prev.messages, assistantMsg],
         formData: updatedFormData,
-        currentStep: nextStep as any,
         isTyping: false,
       }));
     } catch (error) {
@@ -276,13 +260,7 @@ export function ConversationalForm() {
               <ChatInput
                 onSendMessage={handleSendMessage}
                 disabled={conversationState.isTyping || !!isFormComplete}
-                placeholder={
-                  conversationState.currentStep === "loan_amount"
-                    ? "Enter loan amount..."
-                    : conversationState.currentStep === "loan_type"
-                    ? "Choose loan type..."
-                    : "Provide your details..."
-                }
+                placeholder={"Type your message..."}
               />
             )}
           </CardContent>

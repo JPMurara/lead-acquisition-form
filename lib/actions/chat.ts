@@ -53,9 +53,8 @@ Email: [email]"
 
 export async function chatAction(input: {
   messages: { role: "user" | "assistant" | "system"; content: string }[];
-  currentStep: string;
   formData: unknown;
-}): Promise<{ response: string; currentStep: string; formData: unknown }> {
+}): Promise<{ response: string; formData: unknown }> {
   const conversationHistory = input.messages.map((msg) => ({
     role: msg.role,
     content: msg.content,
@@ -77,7 +76,6 @@ export async function chatAction(input: {
 
   return {
     response: aiResponse,
-    currentStep: input.currentStep,
     formData: input.formData,
   };
 }
