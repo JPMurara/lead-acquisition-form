@@ -23,7 +23,7 @@ export function LoanApplicationDialog() {
       <DialogTrigger asChild>
         <Button
           size="lg"
-          className="text-lg px-8 py-6 bg-[#fa8d30] hover:bg-[#fa8d30]/80 text-gray-800"
+          className="text-lg px-8 py-6 bg-[#fa8d30] hover:bg-[#fa8d30]/80 text-gray-800 absolute bottom-10 right-10"
         >
           Apply Now
         </Button>
