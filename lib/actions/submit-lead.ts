@@ -8,16 +8,24 @@ export async function submitLeadAction(input: {
   loanType?: string;
   chatHistory?: string;
 }): Promise<
-  | { success: true; leadId: string; accountId?: string }
-  | { success: false; error: string }
+  { success: true; message: string } | { success: false; error: string }
 > {
-  if (!input.name || !input.email || !input.phone) {
-    return { success: false, error: "Missing required fields" };
+  try {
+    // Simulate processing
+    await new Promise((resolve) =>
+      setTimeout(resolve, 1000 + Math.random() * 1500)
+    );
+
+    // Return success response with user-friendly message
+    return {
+      success: true,
+      message: `Thank you ${input.name}! Your loan application  has been submitted successfully.`,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: false, error: "An unexpected error occurred" };
   }
-
-  const leadId = `lead_${Date.now()}`;
-  const accountId = `acct_${Date.now()}`;
-
-  // TODO: Integrate with lib/lead-processor.ts and lib/salesforce.ts
-  return { success: true, leadId, accountId };
 }

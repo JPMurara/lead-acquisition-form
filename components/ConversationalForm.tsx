@@ -17,34 +17,8 @@ import { CheckCircle } from "lucide-react";
 import { parseAIResponse, ExtractedData } from "@/lib/data-extraction";
 import { chatAction } from "@/lib/actions/chat";
 import { submitLeadAction } from "@/lib/actions/submit-lead";
-
-// Zod schema for submission validation (matches extracted data types)
-const conversationalFormSchema = z.object({
-  loanAmount: z
-    .number({ invalid_type_error: "Loan amount must be a number" })
-    .min(1000, "Loan amount must be at least $1,000")
-    .max(40000, "Loan amount must be no more than $40,000"),
-  loanType: z.string().min(1, "Loan type is required"),
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name must be less than 50 characters"),
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address"),
-  phone: z
-    .string()
-    .min(1, "Phone number is required")
-    .regex(
-      /^[\+]?[0-9][\d\s\-\(\)]{7,15}$/,
-      "Please enter a valid phone number"
-    ),
-  chatHistory: z.string().optional(),
-});
-// Zod schema for form data type
-type FormData = z.infer<typeof conversationalFormSchema>;
+import { conversationalFormSchema, FormData } from "@/lib/schemas";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
@@ -76,12 +50,9 @@ export function ConversationalForm() {
     }
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const handleSubmitApplication = async () => {
-    setError(null);
     setIsSubmitting(true);
     try {
       const formattedChatHistory = conversationState.messages
@@ -104,10 +75,32 @@ export function ConversationalForm() {
         throw new Error(result.error || "Failed to submit lead");
       }
 
-      setIsSubmitted(true);
+      // Show success toast with server response message
+      toast.success("Application Submitted!", {
+        description: result.message,
+        duration: 5000,
+      });
+
+      // Reset form for new conversation
+      setConversationState({
+        messages: [
+          {
+            id: "1",
+            role: "assistant",
+            content:
+              "Hi! I'm here to help you with your loan application. What loan amount are you considering? Please note that we only work with amounts between $1,000 and $40,000.",
+            timestamp: new Date(),
+          },
+        ],
+        formData: {},
+        isTyping: false,
+      });
     } catch (err) {
       console.error("Error submitting form:", err);
-      alert("Failed to submit application. Please try again.");
+      toast.error("Submission Failed", {
+        description: "Failed to submit application. Please try again.",
+        duration: 5000,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -117,8 +110,6 @@ export function ConversationalForm() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversationState.messages]);
-
-  // No form library; state is already in conversationState
 
   const handleSendMessage = async (userMessage: string) => {
     const userMsg: Message = {
@@ -188,24 +179,6 @@ export function ConversationalForm() {
     conversationState.formData.phone &&
     conversationState.formData.loanAmount &&
     conversationState.formData.loanType;
-  console.log("loanAmount", conversationState.formData.loanAmount);
-  console.log("loanAmount", typeof conversationState.formData.loanAmount);
-  if (isSubmitted) {
-    return (
-      <Card className="w-full max-w-4xl mx-auto">
-        <CardHeader>
-          <CardTitle className="text-green-600 flex items-center gap-2">
-            <CheckCircle className="h-6 w-6" />
-            Thank You!
-          </CardTitle>
-          <CardDescription>
-            Your loan application has been submitted successfully. We'll be in
-            touch soon!
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
