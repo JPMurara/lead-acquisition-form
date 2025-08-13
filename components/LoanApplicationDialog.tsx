@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ConversationalForm } from "./ConversationalForm";
@@ -28,7 +29,16 @@ export function LoanApplicationDialog() {
           Apply Now
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl w-[32rem] h-[42rem] p-0 overflow-hidden">
+      <DialogContent
+        className="max-w-3xl w-[32rem] h-[42rem] p-0 overflow-hidden"
+        aria-label="Loan Application"
+      >
+        <DialogHeader className="sr-only">
+          <DialogTitle>Loan Application</DialogTitle>
+          <DialogDescription>
+            Complete your loan application through our conversational assistant
+          </DialogDescription>
+        </DialogHeader>
         <div className="flex-1 overflow-hidden">
           <ConversationalForm onSubmissionComplete={handleFormSubmission} />
         </div>

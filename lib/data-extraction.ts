@@ -56,7 +56,6 @@ export const extractAllData = (text: string): ExtractedData => {
   return extracted;
 };
 
-// Update parseAIResponse to detect this specific template
 export const parseAIResponse = (aiResponse: string): ExtractedData => {
   // Check if this is the final confirmation template
   const isFinalConfirmation =
@@ -68,9 +67,9 @@ export const parseAIResponse = (aiResponse: string): ExtractedData => {
     aiResponse.includes("Email");
 
   if (isFinalConfirmation) {
+    // returns an object with the extracted data for the form data
     return extractAllData(aiResponse);
   }
-
   // For all other messages, return empty object
   return {};
 };

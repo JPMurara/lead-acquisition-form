@@ -67,7 +67,7 @@ export async function chatAction(input: {
       { role: "system", content: SYSTEM_PROMPT },
       ...conversationHistory,
     ],
-    temperature: 0.7,
+    temperature: 0.5,
     max_tokens: 500,
   });
 
