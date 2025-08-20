@@ -1,72 +1,28 @@
-# Conversational Form
+# Conversational Form Widget
 
-## Getting Started
+A React-based conversational form widget that can be easily embedded on any website via CDN or npm.
 
-### Prerequisites
+## Features
 
-Before you begin, ensure you have the following installed:
+- 🤖 AI-powered conversational interface
+- 📝 Multi-step form completion
+- 🎨 Modern, responsive UI with Tailwind CSS
+- 🔧 Customizable API endpoints
+- 📊 Form validation and error handling
+- 🚀 Easy integration via CDN or npm
+- 🎯 Configurable positioning and styling
+- 📱 Mobile-responsive design
 
-- [Node.js](https://nodejs.org/) (version 18 or higher)
-- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/) package manager
+## Installation
 
-### Installation
-
-1. **Clone the repository** (if you haven't already):
-
-2. **Install dependencies**: npm install
-
-3. **Set up environment variables**:
-   Create a `.env.local` file in the root directory and add the configuration below:
-
-   ```env
-   OPENAI_API_KEY=your_api_key
-   ```
-
-4. **Start the development server**: npm run dev
-
-5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## Overall Proposed Solution
-
-The Conversational Form is an interactive form powered by OpenAI API (using GPT-4 model). It creates an engaging user experience when filling out forms, replacing the traditional static form input style with a dynamic conversation.
-
-### Key Features
-
-- **AI-Powered Interaction**: The assistant maintains clear boundaries within the loan application context while providing a natural conversational experience
-- **Data Validation**: At the end of the conversation, the agent validates all collected information and allows users to review and update their responses before submission
-- **User Control**: The actual submission is triggered by the user clicking the submit button, ensuring users maintain full control over their data
-
-### Innovation Focus
-
-This project demonstrates AI and innovation capabilities by leveraging large language models to transform traditional form interactions into engaging conversational experiences.
-
-## Demo Videos
-
-- **Quick Demo** (`quick-demo.webm`): Brief presentation of the Conversational Form.
-- **Fun Demo** (`interesring-demo.webm`): Extended demonstration considering an interesting/fun loan application.
-
-You can watch these videos directly from your IDE.
-
-## Website Integration (Widget)
-
-This application has been deployed as an embeddable script that can be integrated into any website's `<head>` and `<body>` sections, functioning as a widget.
-
-- **Deployed Version**: The script is currently live but shows an older version of the application. Due to time constrains I couldn't update the embed script
-- **LLM Integration**: Not functional in the deployed version due to missing server infrastructure for the LLM endpoint. However it is something somehow simple to achieve.
-- **Testing**: You can test the widget functionality by embedding it in any website.
-
-This deployment demonstrates the feasibility of creating a conversational form widget that can be easily integrated into existing websites, providing a foundation for future development with full LLM capabilities.
-
-### Embed Script
-
-#### Add to `<head>` section:
+### Via CDN (Recommended for quick integration)
 
 ```html
 <!-- Include React and React-DOM -->
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
-<!-- JSX Runtime compatibility layer -->
+<!-- jsxRuntime compatibility layer -->
 <script>
   window.jsxRuntime = {
     jsx: React.createElement,
@@ -79,223 +35,257 @@ This deployment demonstrates the feasibility of creating a conversational form w
 <script src="https://cdn.jsdelivr.net/npm/conversational-form-widget@1.0.0/dist/index.umd.js"></script>
 ```
 
-#### Add to `<body>` section:
+### Via npm
+
+```bash
+npm install conversational-form-widget
+```
+
+## Usage
+
+### Basic HTML Integration
 
 ```html
-<div id="conversational-form"></div>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Conversational Form Demo</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const { ConversationalFormWidget } = window.ConversationalFormWidget;
+    <!-- jsxRuntime compatibility layer -->
+    <script>
+      window.jsxRuntime = {
+        jsx: React.createElement,
+        jsxs: React.createElement,
+        Fragment: React.Fragment,
+      };
+    </script>
 
-    const container = document.getElementById("conversational-form");
-    const root = ReactDOM.createRoot(container);
+    <script src="https://cdn.jsdelivr.net/npm/conversational-form-widget@1.0.0/dist/index.umd.js"></script>
+  </head>
+  <body>
+    <div id="conversational-form"></div>
 
-    root.render(
-      React.createElement(ConversationalFormWidget, {
-        apiEndpoint: "https://your-api.com/api/chat",
-        onFormSubmit: (data) => {
-          console.log("Form submitted:", data);
-          // Handle form submission
-        },
-        onFormError: (error) => {
-          console.error("Form error:", error);
-          // Handle errors
-        },
-      })
-    );
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const { ConversationalFormWidget } = window.ConversationalFormWidget;
+
+        const container = document.getElementById("conversational-form");
+        const root = ReactDOM.createRoot(container);
+
+        root.render(
+          React.createElement(ConversationalFormWidget, {
+            apiEndpoint: "https://your-api.com/api/chat",
+            onFormSubmit: (data) => {
+              console.log("Form submitted:", data);
+              // Handle form submission
+            },
+            onFormError: (error) => {
+              console.error("Form error:", error);
+              // Handle errors
+            },
+          })
+        );
+      });
+    </script>
+  </body>
+</html>
+```
+
+### React Component Usage
+
+```jsx
+import { ConversationalFormWidget } from "conversational-form-widget";
+
+function App() {
+  const handleFormSubmit = (data) => {
+    console.log("Form submitted:", data);
+    // Send data to your backend
+  };
+
+  const handleFormError = (error) => {
+    console.error("Form error:", error);
+    // Handle errors
+  };
+
+  return (
+    <ConversationalFormWidget
+      apiEndpoint="https://your-api.com/api/chat"
+      onFormSubmit={handleFormSubmit}
+      onFormError={handleFormError}
+      logoUrl="https://your-logo.com/logo.png"
+      showPreview={true}
+      position="center"
+      width="100%"
+      height="600px"
+    />
+  );
+}
+```
+
+### ES Module Usage
+
+```html
+<script type="module">
+  import { ConversationalFormWidget } from "https://cdn.jsdelivr.net/npm/conversational-form-widget@1.0.0/dist/index.esm.js";
+
+  // Use the widget
+  const widget = new ConversationalFormWidget({
+    apiEndpoint: "https://your-api.com/api/chat",
   });
+
+  widget.mount("#conversational-form");
 </script>
 ```
 
-#### Configuration Options:
+## API Reference
 
-- **`apiEndpoint`**: Your server's chat API endpoint
-- **`onFormSubmit`**: Callback function when form is submitted
-- **`onFormError`**: Callback function for error handling
+### Props
 
-# Salesforce CRM API + Conversational Form Using OpenAI LLM Integration for Lead Acquisition Form
+| Prop           | Type                                                                       | Default                        | Description                                     |
+| -------------- | -------------------------------------------------------------------------- | ------------------------------ | ----------------------------------------------- |
+| `apiEndpoint`  | `string`                                                                   | `"/api/chat"`                  | The API endpoint for the chat functionality     |
+| `onFormSubmit` | `function`                                                                 | `undefined`                    | Callback function called when form is submitted |
+| `onFormError`  | `function`                                                                 | `undefined`                    | Callback function called when an error occurs   |
+| `theme`        | `"light" \| "dark"`                                                        | `"light"`                      | Theme for the widget                            |
+| `containerId`  | `string`                                                                   | `"conversational-form-widget"` | ID for the container element                    |
+| `logoUrl`      | `string`                                                                   | `undefined`                    | URL for the company logo                        |
+| `showPreview`  | `boolean`                                                                  | `true`                         | Whether to show the form preview tab            |
+| `position`     | `"bottom-right" \| "bottom-left" \| "top-right" \| "top-left" \| "center"` | `"center"`                     | Position of the widget                          |
+| `width`        | `string`                                                                   | `"100%"`                       | Width of the widget                             |
+| `height`       | `string`                                                                   | `"600px"`                      | Height of the widget                            |
 
-## Core Components
+### Form Data Structure
 
-1. **SalesforceService** (`lib/salesforce.ts`)
+The form collects the following data:
 
-   - Handles Salesforce connection and authentication
-   - Implements SOQL queries for account search
-   - Manages account and lead creation via REST API
-   - Follows Interface Segregation Principle with separate interfaces for different concerns
+```typescript
+interface FormData {
+  loanAmount: number; // Loan amount (1000-40000)
+  loanType: string; // Type of loan
+  name: string; // Full name
+  email: string; // Email address
+  phone: string; // Phone number
+  chatHistory: string; // Complete conversation history
+}
+```
 
-2. **LeadProcessor** (`lib/lead-processor.ts`)
+## API Requirements
 
-   - Orchestrates the lead processing workflow
-   - Handles business logic for account/lead management
-   - Provides data validation and error handling
-   - Implements the Single Responsibility Principle
+Your backend API should accept POST requests to the specified endpoint with the following structure:
 
-3. **API Endpoint** (`app/api/crm/route.ts`)
-   - Generic CRM API for contact and lead management
-   - Flexible request/response patterns
-   - Comprehensive error handling and validation
+### Chat Endpoint (`/api/chat`)
 
-## Data Flow
+**Request:**
 
-1. **Form Submission**: User completes the conversational form
-2. **Validation**: Data is validated using Zod schemas
-3. **Local DB Save (Drizzle)**: Server Action saves to our own DB first
-4. **CRM Processing**: Attempts Salesforce account/lead creation
-5. **Response**: Returns success/error response to client
+```json
+{
+  "messages": [
+    {
+      "id": "string",
+      "role": "user" | "assistant" | "system",
+      "content": "string",
+      "timestamp": "Date"
+    }
+  ],
+  "formData": {
+    // Current form data
+  }
+}
+```
 
-Both local DB and CRM processing works in this way:
-1. **Account Lookup**: System checks if account exists
-2. **Account Creation**: If no account exists, creates new account
-2. **Lead Creation**: Creates lead linked to the account
+**Response:**
 
-## Salesforce Data Model
+```json
+{
+  "response": "string", // AI response message
+  "error": "string" // Optional error message
+}
+```
 
-### Account Object
+### Submit Endpoint (`/api/submit`)
 
-- **Name**: Full name of the customer
-- **Email**: Customer email
-- **Phone**: Customer phone number
+**Request:**
 
-### Lead Object
+```json
+{
+  "loanAmount": 15000,
+  "loanType": "car loan",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phone": "+1234567890",
+  "chatHistory": "USER: Hi\nASSISTANT: Hello..."
+}
+```
 
-- **FirstName**: Customer first name
-- **LastName**: Customer last name
-- **Email**: Customer email
-- **Phone**: Customer phone number
-- **Company**: Customer name
-- **Loan_Amount**: Requested loan amount
-- **Loan_Type**: Type of loan requested
-- **AccountId**: Link to associated account
-- **Status**: Lead status (default: "New")
+**Response:**
 
-## Error Handling
+```json
+{
+  "success": true,
+  "message": "Thank you John! Your loan application has been submitted successfully."
+}
+```
 
-The system implements comprehensive error handling:
+## Development
 
-1. **Validation Errors**: Input validation using Zod schemas
-2. **Salesforce Errors**: Connection, authentication, and API errors
-3. **Business Logic Errors**: Account/lead creation failures
-4. **Network Errors**: Connection timeouts and network issues
+### Prerequisites
 
-## Concepts for reusability and scalability
+- Node.js 18+
+- npm or yarn
 
-- `SalesforceService`: Handles only Salesforce operations
-- `LeadProcessor`: Manages only lead processing logic
-- `CRM API Route`: Handles only HTTP request/response
-- Extensive error handling and data validation
+### Setup
 
-## Security Considerations
+1. Clone the repository
+2. Install dependencies:
 
-1. **Environment Variables**: Sensitive credentials stored in environment variables, such as OpenAI and Salesforce CRM API keys
-2. **Input Validation**: All inputs validated using Zod schemas
-3. **SQL Injection Prevention**: SOQL queries use parameterized inputs
-4. **Error Information**: Limited error details exposed to clients
+   ```bash
+   npm install
+   ```
 
-## Future Enhancements
+3. Build the widget:
 
-1. **Database Integration**: Add local database, so we can keep track of Accounts and Leads and save to 'local' BD before CRM interaction.
-2. **Webhook Support**: Real-time notifications for lead status changes
-3. **Form Error**: Case form submission fails due to data types, the UI should present an form prefilled for the user who can edit any possible issues in the form input and retry to submit.
-4. **Email triggers**: Submitting the loan application also triggers a email confirmation message to the client.
+   ```bash
+   npm run build
+   ```
 
-## Local Database using Drizzle
+4. Test locally:
+   ```bash
+   npm run serve
+   ```
 
-- We now persist submissions to our own DB using Drizzle ORM with a Postgres-style schema.
-- Schemas live in `lib/db/schema.ts`:
-- The client calls a single Server Action `submitLeadAction`, which performs the DB write and then proceeds with CRM work.
+### Project Structure
 
-### Why Drizzle
-- Type-safe schema and queries, easyt to use (Developer Experience).
-- Works cleanly with Next.js Server Actions.
-- Easy to migrate to managed Postgres later.
+```
+src/
+├── components/
+│   ├── ConversationalForm.tsx      # Main form component
+│   └── ConversationalFormWidget.tsx # Widget wrapper
+├── ui/                              # UI components
+│   ├── button.tsx
+│   ├── card.tsx
+│   ├── chat-input.tsx
+│   ├── input.tsx
+│   ├── label.tsx
+│   ├── message.tsx
+│   └── tabs.tsx
+├── lib/                             # Utility functions
+│   ├── data-extraction.ts
+│   └── utils.ts
+└── index.ts                         # Main entry point
+```
 
-### Updated Workflow with Our DB
-- `components/ConversationalForm.tsx` calls `submitLeadAction(validatedData)`.
-- `lib/actions/submit-lead.ts` (Server Action):
-  - Saves to our DB first: find-or-create account, then create lead linked to that account.
-  - Continues with Salesforce CRM creation.
+## Publishing to npm
 
-### Failure Handling and Manual CRM Submit
-- If CRM account/lead creation fails, the submission is still in our DB.
-- The UI can prompt the user to click a "Submit to CRM" button to retry the CRM step manually while we keep the local records intact.
-- This ensures no data loss and provides a user-driven recovery path.
+1. Update the version in `package.json`
+2. Build the project: `npm run build`
+3. Publish to npm: `npm publish --access public`
 
-## Repository folder structure
+## License
 
-This project uses Next.js with Server Actions. The structure separates UI, server entrypoints, business logic, and external integrations for clarity, testability, and security.
+MIT License - see LICENSE file for details.
 
-### app/
+## Support
 
-- Purpose: Next.js routing, layouts, and pages.
-- Characteristics:
-  - Server Components by default for performance and security. They stream HTML, keep secrets and heavy work on the server, reduce JS shipped to the browser, and improve SEO by default.
-  - Client Components only where interactivity is needed.
-- Notes: No data fetching logic here beyond small page-level composition. Complex work is delegated to actions/services.
-
-### components/
-
-- Purpose: Reusable UI building blocks and composite components.
-- Characteristics:
-  - Mark interactive components with "use client".
-  - No secrets or server-only imports.
-  - Accept data and callbacks via props; do not embed business logic.
-
-### lib/
-
-- Purpose: Application code shared across the app that is not a React component.
-
-#### lib/actions/
-
-- Purpose: Thin Server Action entrypoints invoked by the UI.
-- Examples:
-  - `lib/actions/chat.ts` → `chatAction`
-  - `lib/actions/submit-lead.ts` → `submitLeadAction`
-- Characteristics:
-  - Parse/validate inputs, call a service, return results.
-  - Keep small and transport-focused (no heavy business rules here).
-
-#### lib/services/
-
-- Purpose: Business rules, workflows, and orchestration that combine multiple operations.
-- Example: `lib/services/lead-processor.ts`
-- Characteristics:
-  - Imported by actions; never by client components.
-  - Add `import "server-only"` to prevent client bundling.
-  - Easy to unit test by mocking integrations.
-
-#### lib/integrations/
-
-- Purpose: External API clients/adapters (e.g., Salesforce).
-- Example: `lib/integrations/salesforce.ts`
-- Characteristics:
-  - Encapsulates Salesforce CRM details, auth, retries, and data mapping.
-  - Add `import "server-only"` to prevent client bundling.
-  - Replaceable (vendor swaps only touch this layer).
-
-#### Other lib modules
-
-- `lib/data-extraction.ts`: Pure client-safe helpers used by the UI for parsing/formatting.
-- `lib/utils.ts`: Shared client-safe utilities (styling, helpers, etc.).
-
-### Why this organization
-
-- **Separation of concerns**: UI (components) vs. server entry (actions) vs. business logic (services) vs. vendors (integrations).
-- **Server/client boundaries**: Actions and server-only modules keep secrets and heavy logic off the client; helpers remain client-safe.
-- **Testability**: Services are testable with mocked integrations; actions remain thin and easy to reason about.
-- **Scalability**: Add new features by creating a service and a small action. Swap external vendors in the integrations layer without touching the rest.
-- **Next.js alignment**: Embraces Server Actions (no internal HTTP overhead), uses server-only guards, and keeps client components lean.
-
-## State Management Strategy
-
-This app uses a simple but effective approach to manage data and user interactions.
-
-### How State is Organized
-
-We use **4 types of state** to keep things organized:
-
-1. **Server State** - Data that lives on the server (conversations, form submissions)
-2. **Client State** - Using simple React hooks to manage data state that lives in the browser (current messages, loading states)
-3. **Form State** - The conversation flow and collected information
-4. **UI State** - Visual elements like dialogs, buttons, and animations
+For issues and questions, please open an issue on the GitHub repository.
