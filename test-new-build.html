@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test New Build</title>
+</head>
+<body>
+    <h1>Testing New Widget Build</h1>
+    
+    <!-- Required Scripts -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="./dist/index.umd.js"></script>
+    
+    <!-- Container -->
+    <div id="conversational-form-widget" style="width: 100%; height: 600px; border: 1px solid blue;"></div>
+    
+    <!-- Initialize -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            console.log('ConversationalFormWidget available:', window.ConversationalFormWidget);
+            
+            if (!window.ConversationalFormWidget) {
+                console.error('Widget not loaded!');
+                return;
+            }
+            
+            const { ConversationalFormWidget } = window.ConversationalFormWidget;
+            console.log('Widget component:', ConversationalFormWidget);
+            
+            const container = document.getElementById('conversational-form-widget');
+            console.log('Container found:', container);
+            
+            if (!container) {
+                console.error('Container not found!');
+                return;
+            }
+            
+            try {
+                const root = ReactDOM.createRoot(container);
+                console.log('React root created');
+                
+                root.render(
+                    React.createElement(ConversationalFormWidget, {
+                        apiEndpoint: 'https://your-api.com/api/chat',
+                        onFormSubmit: (data) => console.log('Submitted:', data),
+                        onFormError: (error) => console.error('Error:', error),
+                    })
+                );
+                console.log('Widget rendered successfully');
+            } catch (error) {
+                console.error('Error rendering widget:', error);
+            }
+        });
+    </script>
+</body>
+</html>

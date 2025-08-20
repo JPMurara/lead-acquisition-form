@@ -5,7 +5,7 @@ export { ConversationalForm } from "./components/ConversationalForm";
 // Default export for UMD builds
 const ConversationalFormWidgetLibrary = {
     ConversationalForm,
-    ConversationalFormWidget
+    ConversationalFormWidget,
 };
 export default ConversationalFormWidgetLibrary;
 //# sourceMappingURL=index.js.map
