@@ -1,6 +1,17 @@
 import { z } from "zod";
 
-// Shared schema for lead submission validation
+/**
+ * VALIDATION SCHEMA
+ *
+ * This Zod schema defines the validation rules. It ensures data quality and type safety before submission to the database.
+ *
+ * Key Features:
+ * - Type checking and validation
+ * - Custom error messages for better UX
+ * - Business rule enforcement (loan amounts, email format, etc.)
+ * - Phone number format validation
+ * - Required field validation
+ */
 export const conversationalFormSchema = z.object({
   loanAmount: z
     .number({ invalid_type_error: "Loan amount must be a number" })

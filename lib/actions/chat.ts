@@ -52,15 +52,25 @@ Phone: [phone number]
 Email: [email]"
 `;
 
+/**
+ * SERVER ACTION: chatAction
+ *
+ * Handles AI chat interactions.
+ * 1. Receives conversation history and current form data
+ * 2. Sends the conversation to OpenAI's GPT-4 model
+ * 3. Returns the AI response for display to the user
+ */
 export async function chatAction(input: {
   messages: { role: "user" | "assistant" | "system"; content: string }[];
   formData: unknown;
 }): Promise<{ response: string; formData: unknown }> {
+  // Transform conversation history for OpenAI API format
   const conversationHistory = input.messages.map((msg) => ({
     role: msg.role,
     content: msg.content,
   }));
 
+  // Send conversation to OpenAI GPT-4 model
   const completion = await openai.chat.completions.create({
     model: "gpt-4",
     messages: [

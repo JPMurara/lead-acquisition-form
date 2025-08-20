@@ -1,7 +1,12 @@
 // Drizzle ORM schema
 import { pgTable, text, timestamp, uuid, integer } from "drizzle-orm/pg-core";
 
-// accounts schema
+/**
+ * ACCOUNTS TABLE SCHEMA
+ *
+ * This table stores customer account information.
+ * It serves as the record for each customer and can be linked to multiple leads.
+ */
 export const accounts = pgTable("accounts", {
   id: uuid().primaryKey().defaultRandom(),
   name: text("name").notNull(),
@@ -15,7 +20,12 @@ export const accounts = pgTable("accounts", {
     .notNull(),
 });
 
-// leads schema
+/**
+ * LEADS TABLE SCHEMA
+ *
+ * This table stores individual loan application leads.
+ * Each lead is linked to an account and represents a specific loan application.
+ */
 export const leads = pgTable("leads", {
   id: uuid().primaryKey().defaultRandom(),
   name: text("name").notNull(),

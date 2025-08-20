@@ -15,7 +15,6 @@ export function LoanApplicationDialog() {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleFormSubmission = () => {
-    // Close the dialog when form is submitted successfully
     setIsOpen(false);
   };
 
@@ -39,6 +38,7 @@ export function LoanApplicationDialog() {
             Complete your loan application through our conversational assistant
           </DialogDescription>
         </DialogHeader>
+
         <div className="flex-1 overflow-hidden">
           <ConversationalForm onSubmissionComplete={handleFormSubmission} />
         </div>

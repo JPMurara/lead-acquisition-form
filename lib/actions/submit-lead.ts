@@ -1,6 +1,10 @@
 "use server";
 
-// "DB insert" example
+/**
+ * DATABASE OPERATION: saveLeadToDB
+ *
+ * Handles saving lead data to our local database.
+ */
 async function saveLeadToDB(input: {
   name: string;
   email: string;
@@ -11,23 +15,25 @@ async function saveLeadToDB(input: {
 }) {
   try {
     // 1) Check if account exists (by name + email)
-
-
     // 2) If not exists, create account; else reuse existing
-    
     // 3) Create lead linked to that account
-    
     // Error handling case account creation or lead creation fails
-}
-  catch (error) {
+  } catch (error) {
     console.error("Error creating lead or account:", error);
-    
     // Handle specific database errors like duplicated keys, etc...
-   
     return { success: false, error: "Failed to create lead" };
   }
 }
 
+/**
+ * SERVER ACTION: submitLeadAction
+ *
+ * This is the main server action that handles lead submission.
+ * It orchestrates the complete lead processing workflow:
+ * 1. Saves data to local database
+ * 2. Integrates with Salesforce CRM
+ * 3. Returns success/error response to client
+ */
 export async function submitLeadAction(input: {
   name: string;
   email: string;

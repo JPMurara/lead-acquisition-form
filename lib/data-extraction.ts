@@ -1,18 +1,15 @@
-// Data extraction utilities for parsing AI responses
-
 export interface ExtractedData {
   loanAmount?: number;
   loanType?: string;
   name?: string;
   email?: string;
   phone?: string;
-  chatHistory?: string; // Add this field
+  chatHistory?: string;
 }
 
 export const extractAllData = (text: string): ExtractedData => {
   const extracted: ExtractedData = {};
 
-  // Extract from the specific AI template format
   const nameMatch = text.match(/Name: (\[name\]|[a-zA-Z\s]+)\.?$/im);
   const loanTypeMatch = text.match(
     /Loan type:\s*(\[loan type\]|[^\r\n]+?)\.?\s*$/im
@@ -67,7 +64,7 @@ export const parseAIResponse = (aiResponse: string): ExtractedData => {
     aiResponse.includes("Email");
 
   if (isFinalConfirmation) {
-    // returns an object with the extracted data for the form data
+    // returns the extracted data for the form data
     return extractAllData(aiResponse);
   }
   // For all other messages, return empty object
